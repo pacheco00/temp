@@ -1,0 +1,39 @@
+[admin@control ansible]$ vim webcontent.yml
+
+- hosts: dev
+  tasks:
+         - name: Add group
+           ansible.builtin.group:
+                name: webdev
+                state: present
+         
+         - name: Create a directory
+           ansible.builtin.file: 
+                name: /webdev
+                group: webdev
+                mode:  02775
+                state: directory
+                setype: httpd_sys_content_t 
+
+         - name: Create symbalic link 
+           ansible.builtin.file: 
+                src: /webdev
+                dest: /var/www/html/webdev
+                state: link
+
+         - name: Create file in /var/www/html
+           ansible.builtin.copy:
+                content: development
+                dest: /var/www/html/webdev/index.html
+
+        
+
+:wq!
+
+[admin@control ansible]$ ansible-navigator run  webcontent.yml -m stdout
+[admin@control ansible]$ curl http://servera.lab.example.com/devweb/ 
+
+
+                
+
+

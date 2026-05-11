@@ -1,0 +1,18 @@
+[admin@control ~]$ cd ansible/
+Note : Cretae 5 files  and define fatcs 
+
+[admin@control ansible]$ vim roles.yml
+
+- name: Run the phpinfo first
+  hosts: webservers
+  roles:
+    - phpinfo
+- name: Run the balancer
+  hosts: balancers
+  roles:
+    - balancer
+
+Note: (Do not change the above roles order)
+
+[admin@control ansible]$ ansible-navigator run  roles.yml -m stdout 
+[admin@control ansible]$ curl http://serverd.lab.example.com

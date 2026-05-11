@@ -1,0 +1,56 @@
+[admin@control ~]$ cd ansible/roles/
+
+[admin@control roles]$ ansible-galaxy init apache
+
+[admin@control roles]$ vim apache/tasks/main.yml
+
+- name: Install httpd package
+  ansible.builtin.dnf:
+    name: 
+      - httpd
+    state: present
+
+- name: start service httpd
+  ansible.builtin.service:
+    name: httpd
+    state: started
+    enabled: yes
+
+- name: start service firewalld
+  ansible.builtin.service:
+    name: firewalld
+    state: started
+    enabled: yes
+
+- name: Add http service in firewall rule
+  ansible.posix.firewalld:
+    service: http
+    state: enabled
+    permanent: yes
+    immediate: yes
+
+- name: Copy the template.j2 file to web server directory
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+:wq!
+
+[admin@control roles]$ vim apache/templates/index.html.j2
+
+Welcome to {{ ansible_fqdn }} on {{ ansible_default_ipv4.address}}
+
+:wq!
+
+[admin@control roles]$ cd ../
+
+[admin@control ansible]$ vim newrole.yml
+
+- hosts: webservers
+  roles:
+       - apache
+
+:wq!
+
+
+[admin@control ansible]$ ansible-navigator run apache_role.yml -m stdout
+[admin@control ansible]$ curl http://servera.lab.example.com 

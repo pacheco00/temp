@@ -1,0 +1,14 @@
+[admin@control ansible]$ vim crontab.yml
+
+- name : Create a cronjob 
+  hosts: all
+  tasks: 
+  - name: Cronjob for for logger
+    ansible.builtin.cron:
+      name: Create logger
+      user: natasha 
+      minute: "*/2"
+      job: logger -p "EX294 in progress"
+      state: present
+
+[admin@control ansible]$ ansible-playbook crontab.yml -m stdout

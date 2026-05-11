@@ -1,0 +1,28 @@
+[admin@control ansible]$ vim issue.yml
+
+- hosts: all
+  tasks:
+        - name: Update content on dev machine
+         ansible.builtin.copy:
+                content: Deployment
+                dest: /etc/issue
+          when: inventory_hostname in groups['dev']
+        
+        - name: Update content on test machine
+          ansible.builtin.copy:
+                content: Test
+                dest: /etc/issue
+          when: inventory_hostname in groups['test']
+
+        - name: Update content on prod machine
+         ansible.builtin.copy:
+                content: Productiom
+                dest: /etc/issue
+          when: inventory_hostname in groups['prod']
+
+:wq!
+
+[admin@control ansible]$ ansible-navigator run issue.yml --diff -m stdout
+
+[admin@control ansible]$ ansible dev,test,prod -a 'cat /etc/issue'
+

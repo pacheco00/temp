@@ -1,0 +1,55 @@
+Answer 1 :-
+
+In RHCEv9 Exam bydefault ssh connection is disabled . So, First at all you need to enable ssh connection for taking login access via base system terminal
+
+[admin@control ~]$ sudo yum install ansible-core  ansible-navigator ansible* tree vim -y
+
+[admin@control ~]$ mkdir /home/devops/ansible
+[admin@control ~]$ mkdir /home/devops/ansible/roles
+[admin@control ~]$ mkdir /home/devops/ansible/mycollection
+[admin@control ~]$  vim ansible/inventory
+
+[dev]
+node1
+
+[test]
+node2
+
+[prod]
+node3
+node4
+
+[balancers]
+node5
+
+[webservers:children]
+prod
+
+:wq!
+
+[admin@control ~]$ sudo cp /etc/ansible/ansible.cfg  ansible/
+
+[admin@control ~]$  vim ansible/ansible.cfg
+[defaults]
+remote_user=admin
+inventory=/home/admin/ansible/inventory
+roles_path=/home/admin/ansible/roles:/usr/share/ansible/roles
+collection_path=/home/admin/ansible/mycollection:~/.ansible/collections:/usr/share/ansible/collections
+host_key_checking = False
+
+[privilege_escalation]
+become=true
+become_method=sudo
+become_user=root
+
+[admin@control ~]$  vim .bashrc
+
+export ANSIBLE_CONFIG=/home/admin/ansible/ansible.cfg  (bottem in the file)
+
+:wq!
+
+[admin@control ~]$ ansible all -m ping (Check whether task is implement sucessfull or not)
+
+ 
+
+

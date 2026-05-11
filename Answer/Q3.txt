@@ -1,0 +1,33 @@
+[admin@control ansible]$ vim package.yml
+
+- name: package installation
+  hosts:
+       - dev
+       - test
+       - prod
+  tasks:
+  - name: installing php and mariadb-server
+    ansible.builtin.dnf:
+      name:
+        - php
+        - mariadb-server
+      state: present 
+
+- name: group package installation
+  hosts: dev
+  tasks:
+   - name: installing group package 'Development tools'
+     ansible.builtin.dnf:
+      name: '@RPM Development Tools'  
+      state: present
+    
+   - name: updating all 
+     ansible.builtin.dnf:
+                      name: '*'
+                      state: latest
+           
+:wq!
+
+[admin@control ansible]$ ansible-navigator run package.yml -m stdout
+
+

@@ -1,0 +1,12 @@
+Answer-4:
+
+1) First at all, Open this link in new tab of exam browser http://utility.lab13.example.com/materails
+2) Then you can see that here 5 tar file avialable, In case you download question defined tar file like :-  redhat.rhel_system_roles-1.19.3.tar.gz collection , posix-1.20.2.tar.gz collection, 
+      community-general-5.5.0.tar.gz collection. right click on difined link and save link  location
+
+[admin@control ~]$ cd ~/ansible/mycollection
+[admin@control mycollection]$ ansible-galaxy collection install http://utility.lab13.example.com/materails/rhel_system_role -p /home/admin/ansible/mycollections
+
+[admin@control mycollection]$ ansible-galaxy collection install http://utility.lab13.example.com/materails/posix-1.20.2.tar.gz  -p  /home/admin/ansible/mycollections
+
+[admin@control mycollection]$ ansible-galaxy collection install http://utility.lab13.example.com/materails/community-general-5.5.0.tar.gz -p   /home/admin/ansible/mycollections

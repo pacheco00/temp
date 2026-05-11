@@ -1,0 +1,14 @@
+[admin@control ansible]$ sudo yum install rhel-system-roles -y
+
+[admin@control ansible]$ vim timesync.yml
+- hosts: all
+  vars:
+    timesync_ntp_servers:
+      - hostname: 172.24.1.254
+        iburst: yes
+  roles:
+      - rhel-system-roles.timesync
+
+:wq!
+
+[admin@control ansible]$ ansible-navigator run timesync.yml -m stdout

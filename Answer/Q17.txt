@@ -1,0 +1,12 @@
+[admin@control ansible]$ vim selinux.yml
+
+- name: Configure selinux as enforcing mode
+  hosts: all
+  vars:
+    - selinux_state: enforcing 
+  roles:
+          - role: rhel-system-roles.selinux
+            become: true
+: wq!
+
+[admin@control ansible]$ ansible-navigator run selinux.yml -m stdout

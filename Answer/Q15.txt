@@ -1,0 +1,9 @@
+[admin@control ansible]$ wget  http://server.network.example.com/materials/salariries.yml 
+
+[admin@control ansible]$ ansible-vault rekey salaries.yml
+Vault password: flectring
+New Vault password: 123qwe,./
+Confirm New Vault password: 123qwe,./
+Rekey successful
+
+Note :- OLD and New Password is given in Exam

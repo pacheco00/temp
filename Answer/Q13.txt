@@ -1,0 +1,10 @@
+[admin@control ansible]$ ansible-vault create locker.yml
+New Vault password:
+Confirm New Vault password:
+
+PW_developer: Imadev
+PW_manager: Imamgr
+
+:wq!
+
+[admin@control ansible]$ echo "whenyouwishuponastar" > secret.txt

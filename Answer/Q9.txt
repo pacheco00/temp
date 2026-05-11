@@ -1,0 +1,26 @@
+[admin@control ~]$  wget http://server.network.example.com/materials/host.j2
+
+[admin@control ~]$   vim host.yml
+
+- hosts: all
+  tasks:
+   - name: copy /etc/hosts to /etc/myhosts
+     ansible.builtin.template:
+        src: /home/admin/ansible/hosts.j2
+        dest: /etc/myhosts
+     when: inventory_hostname in groups['dev']
+
+   - name: create host file
+     ansible.builtin.lineinfile:
+      path: /etc/myhosts
+      line: '{{ hostvars[item].ansible_default_ipv4.address }} {{ hostvars[item].ansible_fqdn }} {{ item }}'
+      state: present
+     with_items: '{{ groups.all }}'
+     when: inventory_hostname in groups['dev']
+
+:wq!
+
+[admin@control ~]$ ansible-navigator run hosts.yml -m stdout 
+
+
+	 

@@ -1,0 +1,32 @@
+[admin@control ansible]$ wget http://server.network.example.com/materials/hwreport.empty 
+
+[admin@control ansible]$ vim hwreport.yml
+
+- hosts: all
+  tasks:
+         
+        - ansible.builtin.get_url:
+                      url: http://server.network.example.com/materials/hwreport.empty
+                      dest:  /root/hwreport.txt
+
+        - name: copy hardware report to /root
+         ansible.builtin.template: 
+                   src: /home/admin/ansible/hwreport.empty
+                   dest: /root/hwreport.txt
+:wq!
+
+[admin@control ansible]$ vim hwreport.empty       (File name given in exam " Downloaded filed ")
+
+Inventory hostname ={{ ansible_fqdn }}
+Total Memory ={{ ansible_memtotal_mb }}
+BIOS version ={{ ansible_bios_version }}
+Size Of disk device vda ={{ ansible_devices.vda.size }}
+{% if ansible_devices.vdb.size is defined  %}
+Size of disk device vdb = {{ ansible_devices.vdb.size }}
+{% else  %}
+Size Of disk device sdb =NONE
+{%endif%}
+
+
+[admin@control ansible]$ ansible-navigator run  hwreport.yml -m stdout 
+

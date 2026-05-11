@@ -1,0 +1,52 @@
+[admin@control ansible]$ wget http://server.network.example.com/materials/user_list.yml 
+
+[admin@control ansible]$ vim users.yml
+
+- hosts: dev
+  vars_files:
+          - /home/admin/ansible/user_list.yml           (Note: user_list.yml file download wget command)
+          - /home/admin/ansible/locker.yml
+  tasks:
+        - name: add group 
+          ansible.builtin.group:
+              name: devops
+               state: present
+
+        - name: add  users who has developer job descrption
+          ansible.builtin.user:
+                name: "{{ item.name }}"
+                groups: devops
+                password: "{{ PW_developer | password_hash('sha512') }}"
+                password_expire_max:  30                              
+          with_items:
+                   - "{{ myuser }}"
+          when: item.job == 'developer'
+
+
+
+- hosts: prod
+  vars_files:
+          - /home/admin/ansible/user_list.yml
+          - /home/admin/ansible/locker.yml
+  tasks:
+        - name: add group
+          ansible.builtin.group:
+               name: sysops
+               state: present
+
+        - name: add  users who has manager job descrption
+         ansible.builtin.user:
+                name: "{{ item.name }}"
+                groups: sysops
+                password: "{{ PW_manager | password_hash('sha512') }}"
+                password_expire_max:  30                                               
+          with_items:
+                   - "{{ myuser }}"
+          when: item.job == 'manager'                   
+
+(Note:- Description name is given in exam like a job = manager)
+
+:wq!
+[admin@control ansible]$ date +%s -d "30 days"
+[admin@control ansible]$ ansible-navigator run users.yml --vault-password-file=secret.txt -m stdout
+

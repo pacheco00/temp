@@ -1,0 +1,33 @@
+[admin@control ~]$ cd ansible/
+
+[admin@control ansible]$ vim repo.yml
+   - name: Configure the company Yum/DNF repositories
+     hosts: all
+     tasks:
+       - name: Deploy the GPG key
+         ansible.builtin.rpm_key:
+               key: http://content.example.com/rhel9.0/x86_64/dvd/RPM-GPG-KEY-redhat-release
+               state: present
+      - name: Ensure Example Repo exists
+        ansible.builtin.yum_repository:
+           file: baseos
+           name: baseos-internal
+           description: Baseos Description
+           baseurl: http://content.example.com/rhel9.0/x86_64/dvd/BaseOS
+           enabled: yes
+           gpgcheck: yes
+           gpgkey: http://content.example.com/rhel9.0/x86_64/dvd/RPM-GPG-KEY-redhat-release
+           state: present
+      - name: Ensure Example Repo 
+        ansible.builtin.yum_repository:
+           file: appstrem
+           name: appstream-internal
+           description: App Description
+           baseurl: http://content/rhel9.0/x86_64/dvd/AppStream
+           enabled: yes
+           gpgcheck: yes
+           gpgkey: http://content.example.com/rhel9.0/x86_64/dvd/RPM-GPG-KEY-redhat-release
+           state: present
+:  wq!
+
+ [admin@control ansible]$ ansible-navigator run yum.yml -m stdout
