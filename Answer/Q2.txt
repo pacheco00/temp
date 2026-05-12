@@ -31,3 +31,8 @@
 :  wq!
 
  [admin@control ansible]$ ansible-navigator run yum.yml -m stdout
+
+---
+
+ansible-doc yum_repository
+ansible-doc rpm_key
