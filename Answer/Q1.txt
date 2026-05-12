@@ -50,6 +50,25 @@ export ANSIBLE_CONFIG=/home/admin/ansible/ansible.cfg  (bottem in the file)
 
 [admin@control ~]$ ansible all -m ping (Check whether task is implement sucessfull or not)
 
- 
+ ---
+ansible-galaxy collection download ansible.posix
+ansible-galaxy collection install /home/admin/ansible/mycollection/ansible-posix-2.1.0.tar.gz -p /home/admin/ansible/mycollection/
+ansible-galaxy collection list
+ssh-keygen
+ssh-copy-id 192.168.0.X (cada uno de los nodos)
+Si no se puede hacer la copia por permisos, entrar con su -, editar el archivo /etc/ssh/sshd_config, PermitRootLogin yes, systemctl restart sshd
+systemctl restart sshd
+
+Inventario
+[dev]
+node1 ansible_host=192.168.0.111
+
+
+
+
+
+
+
+
 
 
