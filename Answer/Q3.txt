@@ -30,4 +30,6 @@
 
 [admin@control ansible]$ ansible-navigator run package.yml -m stdout
 
-
+--- 
+ansible-doc yum
+Tener en cuenta las tareas y los hosts a los que se aplica
