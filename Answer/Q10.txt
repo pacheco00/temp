@@ -1,3 +1,12 @@
+10. Modify file content  
+Create a playbook called /home/admin/ansible/issue.yml  
+The playbook runs on all inventory hosts  
+The playbook replaces the content of /etc/issue with a single line of text as follows:
+- On host is the dev host group, the line reads: Development 
+- On host is the test host group, the line reads: Test
+- On host is the prod host group, the line reads: Production
+===
+
 [admin@control ansible]$ vim issue.yml
 
 - hosts: all
@@ -24,5 +33,8 @@
 
 [admin@control ansible]$ ansible-navigator run issue.yml --diff -m stdout
 
-[admin@control ansible]$ ansible dev,test,prod -a 'cat /etc/issue'
+ansible dev,test,prod -a 'cat /etc/issue'
+ansible all -m shell -a "cat /etc/issue"
 
+
+ansible-playbook --syntax-check
