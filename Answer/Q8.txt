@@ -16,3 +16,34 @@ Note: (Do not change the above roles order)
 
 [admin@control ansible]$ ansible-navigator run  roles.yml -m stdout 
 [admin@control ansible]$ curl http://serverd.lab.example.com
+
+----
+
+** Simular el servidor para ejecutar el ejercio
+
+- Crear roles localmente
+cd /home/admin/ansible
+ansible-galaxy init phpinfo
+ansible-galaxy init balancer
+
+- Empaquetar
+tar -czf phpinfo.tar.gz phpinfo/
+tar -czf balancer.tar.gz balancer/
+
+- Levantar servidor
+python3 -m http.server 8000
+Queda en modo escucha
+
+- Crear requirement.yml
+- name: phpinfo
+  src: http://192.168.1.10:8000/phpinfo.tar.gz
+
+- name: balancer
+  src: http://192.168.1.10:8000/balancer.tar.gz
+
+- Instalar
+ansible-galaxy install -r requirements.yml -p /home/admin/ansible/roles
+
+
+
+
