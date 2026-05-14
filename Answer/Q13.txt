@@ -17,3 +17,6 @@ PW_manager: Imamgr
 :wq!
 
 [admin@control ansible]$ echo "whenyouwishuponastar" > secret.txt
+
+
+--vault-password-file
