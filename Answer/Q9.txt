@@ -1,26 +1,49 @@
-[admin@control ~]$  wget http://server.network.example.com/materials/host.j2
+9. Generate a host file        
+* Download  an initial template file from http://server.network.example.com/materials/hosts.j2  
+to /home/admin/ansible        
+Complete the template so that it can he used to generate a file with a line for each host in the 
+same format as /etc/hosts   
+* Create a playbook call /home/admin/host.yml that uses this template to generate the file 
+/etc/myhosts on hosts in the dev host group.
+When the playbook is run, the file /etc/myhosts on host in the dev host group should have a line 
+for each managed hosts:
+127.0.0.1 localhost localhost.localdoamin localhost4 localhost4.localdomain ::1 localhost 
+localhost.localdoamin localhost6 localhost6.localdomain 172.24.10.6
+node1.domain1.example.com node1 172.24.10.9
+node2.doamin1.example.com node2 172.24.10.10
+node3.doamin1.example.com node3 172.24.10.11
+node4.doamin1.example.com node4 172.24.10.12
+node5.doamin1.example.com node5 172.24.10.13
+Note: The order in which the inventory host names appear is not important
 
-[admin@control ~]$   vim host.yml
+===
+hosts.j2
+127.0.0.1       localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1             localhost localhost.localdomain localhost6 localhost6.localdomain6
+===
+host.yml
+---
+- name: task 9
+  hosts: all
 
-- hosts: all
   tasks:
-   - name: copy /etc/hosts to /etc/myhosts
-     ansible.builtin.template:
+    - name: copy /etc/hosts to /etc/myhosts
+      ansible.builtin.template:
         src: /home/admin/ansible/hosts.j2
         dest: /etc/myhosts
-     when: inventory_hostname in groups['dev']
+      when: inventory_hostname in groups['dev']
 
-   - name: create host file
-     ansible.builtin.lineinfile:
-      path: /etc/myhosts
-      line: '{{ hostvars[item].ansible_default_ipv4.address }} {{ hostvars[item].ansible_fqdn }} {{ item }}'
-      state: present
-     with_items: '{{ groups.all }}'
-     when: inventory_hostname in groups['dev']
-
-:wq!
-
+    - name: create host file
+      ansible.builtin.lineinfile:
+        path: /etc/myhosts
+        line: '{{ hostvars[item].ansible_default_ipv4.address }} {{ hostvars[item].ansible_fqdn }} {{ item }}'
+        state: present
+      with_items: '{{ groups.all }}'
+      when: inventory_hostname in groups['dev']
+===
 [admin@control ~]$ ansible-navigator run hosts.yml -m stdout 
+===
+ansible-doc lineinfile
 
 
 	 
