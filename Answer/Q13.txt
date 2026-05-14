@@ -1,3 +1,12 @@
+13. Create an ansible vault to store user pasword as follows: 
+* The name of the vault is /home/admin/ansible/locker.yml 
+* The vault contains two variables with names: 
+- pw_developer with value Imadev
+- pw_manager with value Imamgr
+       
+* The Password to encrypt and decrypt the vault is whenyouwishuponastar 
+* The password is stored in the file /home/admin/ansible/secret.txt
+
 [admin@control ansible]$ ansible-vault create locker.yml
 New Vault password:
 Confirm New Vault password:
