@@ -1,3 +1,18 @@
+12. Generate a hardware report  
+Create a playbook called /home/admin/ansible/hwreport.yml that produces an output file called  
+/root/hwreport.txt on all managed nodes with the following information: 
+- Inventory hostname 
+- Total Memory 
+- BIOS version 
+- Size of disk device vda
+- Size of disk device vdb 
+Each line of the output file contains a single key=value pair. 
+- your playbook should Download the file from http://server.network.example.com/materials/hwreport.empty and save it is aas /root/hwreport.txt
+- Modify /root/hwreport.txt with the correct values 
+- if a hardware item does not exist, the associated value should be set to NONE        
+===
+bajar/crear hwreport.empty
+
 [admin@control ansible]$ wget http://server.network.example.com/materials/hwreport.empty 
 
 [admin@control ansible]$ vim hwreport.yml
@@ -15,17 +30,23 @@
                    dest: /root/hwreport.txt
 :wq!
 
+/etc/resolv.cfg
+nameserver 8.8.8.8
+nameserver 1.1.1.1
+
+===
+ansible dev -m setup -a 'filter=*ansible_*'
 [admin@control ansible]$ vim hwreport.empty       (File name given in exam " Downloaded filed ")
 
-Inventory hostname ={{ ansible_fqdn }}
-Total Memory ={{ ansible_memtotal_mb }}
-BIOS version ={{ ansible_bios_version }}
-Size Of disk device vda ={{ ansible_devices.vda.size }}
-{% if ansible_devices.vdb.size is defined  %}
-Size of disk device vdb = {{ ansible_devices.vdb.size }}
-{% else  %}
-Size Of disk device sdb =NONE
-{%endif%}
+INVENTORY_HOSTNAME={{ ansible_hostname }}
+TOTAL_MEMORY={{ ansible_memtotal_mb }}
+BIOS_VERSION={{ ansible_bios_version }}
+SIZE_OF_DISK_VDA={{ ansible_devices.sda.size }}
+{% if ansible_devices.vdb.size is defined %}
+SIZE_OF_DISK_VBD={{ ansible_devices.sdb.size }}
+{% else %}
+SIZE_OF_DISK_VDB=NONE
+{% endif %}
 
 
 [admin@control ansible]$ ansible-navigator run  hwreport.yml -m stdout 
