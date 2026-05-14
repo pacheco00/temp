@@ -1,10 +1,46 @@
+14. Create user accounts  
+* Download a list of user to be created from http://server.network.example.com/materials/user_list.yml
+* Using the password vault /home/admin/ansible/locker.yml 
+* Create elsewhere in this exam, create a play book called /home/admin/ansible/users.yml that create user account as following:
+* User with job description of developer should be: 
+- create on managed node in the dev and test host group 
+- assigned the password from the pw_devloper variable and password should be expire in 30 days 
+- a member of supplementary group devops 
+* User with a job description of manager should be: 
+- create on managed node in the prod host group 
+- assigned the password from pw_manager variable and password should be expire in 30 days 
+- a member of supplementary group opsmgr *
+- password should use the SHA512 gas format 
+* Your playbook should work using the vault password file /home/admin/ansible/secret.txt created elsewhere in this exam         
+===
+
+Archivo de usuarios: user_list.yml
+users:
+- name: david
+uid: 1040
+job: developer
+
+- name: natasha
+uid: 1041
+job: manager
+
+- name: harry
+uid: 1042
+job: developer
+
+- name: sarah
+uid: 1043
+job: manager
+
+
+
 [admin@control ansible]$ wget http://server.network.example.com/materials/user_list.yml 
 
 [admin@control ansible]$ vim users.yml
 
 - hosts: dev
   vars_files:
-          - /home/admin/ansible/user_list.yml           (Note: user_list.yml file download wget command)
+          - /home/admin/ansible/user_list.yml   
           - /home/admin/ansible/locker.yml
   tasks:
         - name: add group 
@@ -19,7 +55,7 @@
                 password: "{{ PW_developer | password_hash('sha512') }}"
                 password_expire_max:  30                              
           with_items:
-                   - "{{ myuser }}"
+                   - "{{ users }}"
           when: item.job == 'developer'
 
 
@@ -31,17 +67,17 @@
   tasks:
         - name: add group
           ansible.builtin.group:
-               name: sysops
+               name: opsmgr
                state: present
 
         - name: add  users who has manager job descrption
          ansible.builtin.user:
                 name: "{{ item.name }}"
-                groups: sysops
+                groups: opsmgr
                 password: "{{ PW_manager | password_hash('sha512') }}"
                 password_expire_max:  30                                               
           with_items:
-                   - "{{ myuser }}"
+                   - "{{ users }}"
           when: item.job == 'manager'                   
 
 (Note:- Description name is given in exam like a job = manager)
