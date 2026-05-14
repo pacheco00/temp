@@ -1,3 +1,16 @@
+11. Create a Web content directory 
+Create a playbook called /home/admin/ansible/webcontent.yml as follows: 
+* The playbook runs managed node in the dev host group
+* Create the directory /webdev with the following requirement: 
+- it is owner by the webdev group -it has regular permissions:                                                                                             
+- owner=read+write+execute,group=r+w+x,other=r+x 
+- it has special permission: set group GID 
+* Symbolically link /webdev to /var/www/html/webdev
+* Create the file /webdev/index.html with a single line of text that reads: Development 
+* Browsing this directory on host in the dev host group ( for example 
+http://system1.domain1.example.com/webdev/) produces the following output: Developmen
+===
+
 [admin@control ansible]$ vim webcontent.yml
 
 - hosts: dev
@@ -25,15 +38,21 @@
            ansible.builtin.copy:
                 content: development
                 dest: /var/www/html/webdev/index.html
-
-        
-
+       
 :wq!
 
 [admin@control ansible]$ ansible-navigator run  webcontent.yml -m stdout
-[admin@control ansible]$ curl http://servera.lab.example.com/devweb/ 
+[admin@control ansible]$ curl http://servera.lab.example.com/devweb/
 
-
+===
+ansible-doc file
+===
+✅ Valores posibles del primer dígito
+Valor - Permiso especial - Descripción
+0 Ninguno Sin permisos especiales
+1 Sticky bit Solo el dueño puede borrar archivos
+2 SGID Hereda el grupo (el que usaste ✅)
+4 SUID Ejecuta con permisos del dueño
                 
 
 
