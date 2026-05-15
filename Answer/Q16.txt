@@ -1,3 +1,18 @@
+16. Storage LVM
+Create & use a logicalVolume
+Create a playbook called /home/admin/ansible/ansible/lv.yml that runs on all managed nodes that does the following:
+* Creates a logical volume with these requirement:
+- The logical Volume is Created in the research volume group
+- The logical volume name is data
+- The logical volume size is 1500 Mib
+* Format the logical volume with the ext4 file system
+* if the requested logical volume size cannot be created, the error message Could not create
+logical volume of that size should be displayed and size 800 MiB should be used instead.
+* If the volume research does not exist, the error message volume group does not exist should be
+displayed
+* Does NOT mount the logical volume in any way.
+===
+
 [admin@control ~]$ cd ansible/
 
 [admin@control ansible]$ vim lv.yml
