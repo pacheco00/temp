@@ -83,3 +83,54 @@ nameserver 1.1.1.1
         owner: root
         group: root
         mode: '0644'
+
+
+==============
+
+🔎 Pasos para crear discos en Oracle VM VirtualBox
+Apaga el nodo (ejemplo: node1).
+En VirtualBox, selecciona la VM → Apagar.
+Agrega un disco nuevo
+Configuración → Almacenamiento → Controlador SATA → Agregar disco duro.
+Crea un disco virtual nuevo (VDI) de, por ejemplo, 2 GB.
+Asegúrate de que esté marcado como disco adicional, no el de arranque.
+Inicia la VM
+Arranca el nodo y verifica el nuevo disco:
+lsblk
+Verás algo como /dev/sdb (además de tu disco principal /dev/sda).
+
+Crea el Volume Group
+En el nodo:
+sudo pvcreate /dev/sdb
+sudo vgcreate research /dev/sdb
+Ahora tienes el grupo research listo para que tu playbook cree el LV.
+
+📂 Ejemplo de flujo para todos los nodos
+Si quieres automatizar la creación de discos en varios nodos:
+En VirtualBox, agrega un disco extra a cada VM (ej. /dev/sdb).
+Luego usa Ansible para inicializar el VG en todos los nodos:
+
+yaml
+---
+- name: Preparar VG research en todos los nodos
+  hosts: all
+  become: true
+  tasks:
+    - name: Crear PV en /dev/sdb
+      command: pvcreate /dev/sdb
+      args:
+        creates: /dev/sdb
+
+    - name: Crear VG research
+      command: vgcreate research /dev/sdb
+      args:
+        creates: /dev/research
+Después de esto, tu playbook lv.yml podrá crear el LV data sin problemas.
+
+✅ Verificación
+En cada nodo:
+vgs
+lvs
+Debes ver el VG research.
+
+Corre tu playbook lv.yml y valida que se cree /dev/research/data.
