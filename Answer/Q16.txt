@@ -57,3 +57,29 @@ displayed
 
 
 [admin@control ansible]$  ansible-playbook lv.yml
+
+
+Error de sintaxis porque la collection community.general no está instalada.
+
+ansible-galaxy collection install community.general -p /home/admin/ansible/mycollection
+
+/etc/resolv.cfg
+nameserver 8.8.8.8
+nameserver 1.1.1.1
+
+---
+- name: Configurar resolv.conf en todos los nodos
+  hosts: all
+  become: true
+  tasks:
+
+    - name: Crear archivo /etc/resolv.conf con DNS públicos
+      copy:
+        dest: /etc/resolv.conf
+        content: |
+          nameserver 8.8.8.8
+          nameserver 8.8.4.4
+          nameserver 1.1.1.1
+        owner: root
+        group: root
+        mode: '0644'
