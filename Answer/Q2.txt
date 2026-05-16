@@ -1,3 +1,103 @@
+2. Create a playbook for yum configuration.
+
+As a system administrator you will need install software on the managed nodes.
+Create a playbook called /home/admin/ansible/yum.yml , the user ansible create a yum
+repository on each of the managed nodes as follows:
+
+Repository 1:
+- The name of the repository is EX294_BASE
+- The description is EX294 base software
+- The base URL is http://content.example.com/rhel9.0/x86_64/dvd/BaseOS
+- GPG signature checking is enabled
+- The GPG Key URL is http://content.example.com/rhel9.0/x86_64/dvd/RPM-GPG-KEYredhat-
+release
+- The repository is enabled
+
+Repository 2: -
+- The name of the repository is EX294_STREM
+- The description is EX294 base software
+- The base URL is http://content.example.com/rhel9.0/x86_64/dvd/AppStream
+- GPG signature checking is enabled
+- The GPG Key URL is http://content.example.com/rhel9.0/x86_64/dvd/RPM-GPG-KEYredhat-
+release
+- The repository is enabled
+
+====
+ansible-doc -l
+ansible-doc rpm_key
+ansible-doc yum_repository
+====
+yum.yml
+---
+- name: Create repositories
+  hosts: all
+
+  tasks:
+
+  - name: GPY key 
+    ansible.builtin.rpm_key:
+      state: present
+      key: is http://content.example.com/rhel9.0/x86_64/dvd/RPM-GPG-KEYredhat-release 
+
+  - name: Repo 1 
+    ansible.builtin.yum_repository:
+      name: EX294_BASE
+      description: EX294 base software
+      baseurl: https://download.fedoraproject.org/pub/epel/$releasever/$basearch/
+      enabled: yes
+      gpgcheck: yes
+
+  - name: Repo 1
+    ansible.builtin.yum_repository:
+      name: EX294_STREM
+      description: EX294 base software
+      baseurl: https://download.fedoraproject.org/pub/epel/$releasever/$basearch/
+      enabled: yes
+      gpgcheck: yes
+====
+Prueba de la coinfiguración de los repos en los nodos
+dnf repolist enabled
+====
+Ejemplo con repositorios reales para prueba:
+---
+- name: Configurar repositorios YUM en nodos gestionados
+  hosts: all
+  become: true
+  tasks:
+    - name: Crear repositorio EX294_BASE
+      yum_repository:
+        name: EX294_BASE
+        description: EX294 base software
+        baseurl: http://mirror.centos.org/centos/9-stream/BaseOS/x86_64/os/
+        gpgcheck: yes
+        gpgkey: http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-Stream-9
+        enabled: yes
+
+    - name: Crear repositorio EX294_STREM
+      yum_repository:
+        name: EX294_STREM
+        description: EX294 stream software
+        baseurl: http://mirror.centos.org/centos/9-stream/AppStream/x86_64/os/
+        gpgcheck: yes
+        gpgkey: http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-Stream-9
+        enabled: yes
+====
+
+
+
+
+
+
+
+
+
+
+
+====
+
+
+
+
 [admin@control ~]$ cd ansible/
 
 [admin@control ansible]$ vim repo.yml
@@ -34,5 +134,4 @@
 
 ---
 
-ansible-doc yum_repository
-ansible-doc rpm_key
+
