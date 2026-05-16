@@ -31,14 +31,11 @@ yum.yml
 ---
 - name: Create repositories
   hosts: all
-
   tasks:
-
   - name: GPY key 
     ansible.builtin.rpm_key:
       state: present
       key: is http://content.example.com/rhel9.0/x86_64/dvd/RPM-GPG-KEYredhat-release 
-
   - name: Repo 1 
     ansible.builtin.yum_repository:
       name: EX294_BASE
@@ -46,7 +43,6 @@ yum.yml
       baseurl: https://download.fedoraproject.org/pub/epel/$releasever/$basearch/
       enabled: yes
       gpgcheck: yes
-
   - name: Repo 1
     ansible.builtin.yum_repository:
       name: EX294_STREM
@@ -72,7 +68,6 @@ Ejemplo con repositorios reales para prueba:
         gpgcheck: yes
         gpgkey: http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-Stream-9
         enabled: yes
-
     - name: Crear repositorio EX294_STREM
       yum_repository:
         name: EX294_STREM
@@ -82,6 +77,9 @@ Ejemplo con repositorios reales para prueba:
         gpgkey: http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-Stream-9
         enabled: yes
 ====
+Ejecuntando la tarea 3, cambié los repositorios.
+http://mirror.stream.centos.org/9-stream/BaseOS/x86_64/os/
+http://mirror.stream.centos.org/9-stream/AppStream/x86_64/os/
 
 
 
