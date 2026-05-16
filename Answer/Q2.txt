@@ -77,9 +77,26 @@ Ejemplo con repositorios reales para prueba:
         gpgkey: http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-Stream-9
         enabled: yes
 ====
-Ejecuntando la tarea 3, cambié los repositorios.
-http://mirror.stream.centos.org/9-stream/BaseOS/x86_64/os/
-http://mirror.stream.centos.org/9-stream/AppStream/x86_64/os/
+Cambiar el estado de los repositorios a absent, para quitarlos y no tener problemas en el siguiente punto.
+====
+    - name: Crear repositorio EX294_BASE
+      yum_repository:
+        name: EX294_BASE
+        description: EX294 base software
+        baseurl: http://mirror.centos.org/centos/9-stream/BaseOS/x86_64/os/
+        gpgcheck: yes
+        gpgkey: https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Stream-9
+        enabled: yes
+
+    - name: Crear repositorio EX294_STREM
+      yum_repository:
+        name: EX294_STREM
+        description: EX294 stream software
+        baseurl: http://mirror.centos.org/centos/9-stream/AppStream/x86_64/os/
+        gpgcheck: yes
+        gpgkey: https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Stream-9
+        enabled: yes
+
 
 
 
