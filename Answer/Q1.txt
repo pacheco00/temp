@@ -1,5 +1,18 @@
-Answer 1 :-
+1. Install and Configure Ansible on the control node as follows:
+* Install the required packages.
+* Create a static inventory file called /home/admin/ansible/inventory as follows:
+- node1 is a member of the dev host group
+- node2 is member of the test host group
+- node3 and node4 are member of the prod host group
+- node5 is member of the balancers host group
+- The prod group is a member of the webservers host group
+* Create a configuration file called /home/admin/ansible/ansible.cfg
+- The host inventory file is /home/admin/ansible/inventory
+- The location of role used in playbooks include /home/admin/ansible/roles
+- The Install Ansible Content Collection /home/admin/ansible/mycollection
 
+
+Answer 1 :-
 In RHCEv9 Exam bydefault ssh connection is disabled . So, First at all you need to enable ssh connection for taking login access via base system terminal
 
 [admin@control ~]$ sudo yum install ansible-core  ansible-navigator ansible* tree vim -y
@@ -8,25 +21,26 @@ In RHCEv9 Exam bydefault ssh connection is disabled . So, First at all you need 
 [admin@control ~]$ mkdir /home/devops/ansible/roles
 [admin@control ~]$ mkdir /home/devops/ansible/mycollection
 [admin@control ~]$  vim ansible/inventory
-
 [dev]
-node1
-
+node1 ansible_host=192.168.0.111
 [test]
-node2
-
+node2 ansible_host=192.168.0.112
 [prod]
-node3
-node4
-
-[balancers]
-node5
-
+node3 ansible_host=192.168.0.113
+node4 ansible_host=192.168.0.114
+[balncers]
+node5 ansible_host=192.168.0.115
 [webservers:children]
 prod
-
 :wq!
-
+===
+cat /etc/ansible/ansible.cfg
+# To generate an example config file (a "disabled" one with all default settings, commented out):
+#               $ ansible-config init --disabled > ansible.cfg
+#
+# Also you can now have a more complete file by including existing plugins:
+# ansible-config init --disabled -t all > ansible.cfg
+===
 [admin@control ~]$ sudo cp /etc/ansible/ansible.cfg  ansible/
 
 [admin@control ~]$  vim ansible/ansible.cfg
@@ -43,25 +57,32 @@ become_method=sudo
 become_user=root
 
 [admin@control ~]$  vim .bashrc
-
 export ANSIBLE_CONFIG=/home/admin/ansible/ansible.cfg  (bottem in the file)
-
 :wq!
 
 [admin@control ~]$ ansible all -m ping (Check whether task is implement sucessfull or not)
 
- ---
+===
+Acceso a los nodos, editar /etc/ssh/sshd_config
+PermitRootLogin yes
+restar ssh service
+systemctl rstart service
+===
 ansible-galaxy collection download ansible.posix
 ansible-galaxy collection install /home/admin/ansible/mycollection/ansible-posix-2.1.0.tar.gz -p /home/admin/ansible/mycollection/
 ansible-galaxy collection list
+===
 ssh-keygen
 ssh-copy-id 192.168.0.X (cada uno de los nodos)
-Si no se puede hacer la copia por permisos, entrar con su -, editar el archivo /etc/ssh/sshd_config, PermitRootLogin yes, systemctl restart sshd
+Si no se puede hacer la copia por permisos, entrar con su -, editar el archivo /etc/ssh/sshd_config, PermitRootLogin yes
 systemctl restart sshd
-
+===
 Inventario
 [dev]
 node1 ansible_host=192.168.0.111
+===
+ansible-inventory
+ansible-config view
 
 
 
