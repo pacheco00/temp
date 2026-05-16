@@ -11,6 +11,56 @@
 - The location of role used in playbooks include /home/admin/ansible/roles
 - The Install Ansible Content Collection /home/admin/ansible/mycollection
 
+====
+* Crear rutas
+mkdir -p /home/admn/ansible/roles /home/admin/ansible/mycollection
+====
+* Instalar ansible
+yum install ansible-core
+dnf install ansible-core
+ansible --version
+====
+* Crear ansible.cfg
+[defaults]
+#remote_user=admin
+inventory=/home/admin/ansible/inventory
+roles_path=/home/admin/ansible/roles:/usr/share/ansible/roles
+collections_path=/home/admin/ansible/mycollection:~/.ansible/collections:/usr/share/ansible/collections
+host_key_checking = False
+
+[privilege_escalation]
+become=true
+become_method=sudo
+become_user=root
+
+ansible-config view
+====
+* Crear inventory
+admin/ansible/inventory (file)
+[dev]
+node1 ansible_host=192.168.0.111
+ansible-inventory --list
+====
+* Permitir accesos en nodos
+Editar /etc/ssh/sshd_config
+PermitRootLogin yes
+systemctl restart sshd
+===
+* Crear/copiar llave a los nodos
+ssh-keygen
+ssh-copy-id 192.168.0.X (cada uno de los nodos)
+====
+ansible -m all -m ping
+====
+ansible-galaxy collection download ansible.posix
+ansible-galaxy collection install /home/admin/ansible/mycollection/ansible-posix-2.1.0.tar.gz -p /home/admin/ansible/mycollection/
+ansible-galaxy collection list
+====
+
+
+
+
+
 
 Answer 1 :-
 In RHCEv9 Exam bydefault ssh connection is disabled . So, First at all you need to enable ssh connection for taking login access via base system terminal
@@ -28,7 +78,7 @@ node2 ansible_host=192.168.0.112
 [prod]
 node3 ansible_host=192.168.0.113
 node4 ansible_host=192.168.0.114
-[balncers]
+[balancers]
 node5 ansible_host=192.168.0.115
 [webservers:children]
 prod
@@ -62,27 +112,7 @@ export ANSIBLE_CONFIG=/home/admin/ansible/ansible.cfg  (bottem in the file)
 
 [admin@control ~]$ ansible all -m ping (Check whether task is implement sucessfull or not)
 
-===
-Acceso a los nodos, editar /etc/ssh/sshd_config
-PermitRootLogin yes
-restar ssh service
-systemctl rstart service
-===
-ansible-galaxy collection download ansible.posix
-ansible-galaxy collection install /home/admin/ansible/mycollection/ansible-posix-2.1.0.tar.gz -p /home/admin/ansible/mycollection/
-ansible-galaxy collection list
-===
-ssh-keygen
-ssh-copy-id 192.168.0.X (cada uno de los nodos)
-Si no se puede hacer la copia por permisos, entrar con su -, editar el archivo /etc/ssh/sshd_config, PermitRootLogin yes
-systemctl restart sshd
-===
-Inventario
-[dev]
-node1 ansible_host=192.168.0.111
-===
-ansible-inventory
-ansible-config view
+
 
 
 
