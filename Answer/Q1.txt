@@ -48,7 +48,7 @@ cat /etc/ansible/ansible.cfg
 remote_user=admin
 inventory=/home/admin/ansible/inventory
 roles_path=/home/admin/ansible/roles:/usr/share/ansible/roles
-collection_path=/home/admin/ansible/mycollection:~/.ansible/collections:/usr/share/ansible/collections
+collections_path=/home/admin/ansible/mycollection:~/.ansible/collections:/usr/share/ansible/collections
 host_key_checking = False
 
 [privilege_escalation]
