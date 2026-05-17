@@ -1,3 +1,55 @@
+7. Create & use a role Create a role called apache in /home/admin/ansible/roles with the following requirement:
+- The httpd package is install, enabled on boot and started
+- The Firewall is enabled & running with a rule to allow access the web server
+- A template file index.html.j2 and is used to create the file /var/www/html/index.html with the
+Welcome to HOSTNAME ON IPADDRESS where HOSTNAME is the fqdn of the managed
+node and ip address is the ip address of managed node
+* create a playbook called /home/admin/ansible/newrole.yml that uses this role as follow:
+- The playbook runs on host in the webservers host group
+====
+Crear role en ansible/roles
+ansible-galaxy init apache
+====
+editar (ansible-doc yum / service / firewalld)
+roles/apache/tasks/main.yml
+- name: Install httpd package
+  ansible.builtin.dnf:
+    name: 
+      - httpd
+    state: present
+- name: start service httpd
+  ansible.builtin.service:
+    name: httpd
+    state: started
+    enabled: yes
+- name: start service firewalld
+  ansible.builtin.service:
+    name: firewalld
+    state: started
+    enabled: yes
+- name: Add http service in firewall rule
+  ansible.posix.firewalld:
+    service: http
+    state: enabled
+    permanent: yes
+    immediate: yes
+- name: Copy the template.j2 file to web server directory
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+====
+newrole.yml
+- hosts: webservers
+  roles:
+       - apache
+====
+Crear index en apache/template/index.html.j2
+Welcome to {{ ansible_fqdn }} on {{ ansible_default_ipv4.address}}
+====
+Ejecutar newrole.yml
+Prueba: curl http://servera.lab.example.com 
+====
+
 [admin@control ~]$ cd ansible/roles/
 
 [admin@control roles]$ ansible-galaxy init apache
