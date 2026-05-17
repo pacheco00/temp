@@ -21,7 +21,9 @@ Option 2
 [admin@control roles]$ ansible-galaxy install -r requirement.yml
 or
 ansible-galaxy collection install -r collections/requirements.yml -p collections
-
+===
+Prueba, verificación
+ansible-galaxy list
 ====
 Inicializa roles vacíos:
 /home/admin/ansible/roles
