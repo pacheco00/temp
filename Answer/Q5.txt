@@ -1,5 +1,13 @@
+5. Install roles using Ansible Galaxy
+Download and install role to /home/admin/ansible/roles from following URL:
+playbook name shoud be requirement.yml
+http://server.network.example.com/materials/haproxy.tar
+- The Name of the role should be balancer
+http://server.network.example.com/materials/phpinfo.tar
+- The Name of the role should be phpinfo
+
 [admin@control ~]$ cd ansible/roles/
-[admin@control roles]$ vim requirmental.yml
+[admin@control roles]$ vim requirment.yml
 
 - src: https://github.com/geerlingguy/ansible-role-haproxy.git
   name: balancer
@@ -9,6 +17,25 @@
 
 :wq!
 
-[admin@control roles]$ ansible-galaxy install -r requirmental.yml
+[admin@control roles]$ ansible-galaxy install -r requirement.yml
 
-Note: Link is given in Exam , I am using this link for pratical purpose.
+====
+Inicializa roles vacíos:
+/home/admin/ansible/roles
+ansible-galaxy init balancer
+ansible-galaxy init phpinfo
+====
+Edita tasks/main.yml en cada rol para simular la lógica:
+* En balancer/tasks/main.yml podrías poner:
+yaml
+- name: Install HAProxy
+  package:
+    name: haproxy
+    state: present
+* En phpinfo/tasks/main.yml podrías poner:
+yaml
+- name: Deploy phpinfo page
+  copy:
+    dest: /var/www/html/phpinfo.php
+    content: "<?php phpinfo(); ?>"
+
