@@ -18,6 +18,7 @@ mkdir -p /home/admn/ansible/roles /home/admin/ansible/mycollection
 * Instalar ansible
 yum install ansible-core
 dnf install ansible-core
+dnf install rhel-system-roles
 ansible --version
 ====
 * Crear ansible.cfg
