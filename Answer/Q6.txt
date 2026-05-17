@@ -1,3 +1,31 @@
+6. Use a RHEL system role Install the RHEL System role package & create a playbook called
+/home/admin/ansible/timesync.yml that:
+- Runs on all managed nodes
+- Uses the timesync role
+- Configures the role to use the currently active NTP provider
+- Configure the role to use the time server 172.24.1.254
+- Configure the role to enable the iburst parameter.
+
++ depends on q4
+====
+yum install rhel-system-roles -y
+vim /user/share/ansible/roles/rhel-system-roles.timesync/README.md
+====
+timesync.yml
+- name: task 6 or use tymesync
+  hosts: all
+  vars:
+    timesync_ntp_servers:
+      - hostname: 172.24.1.254
+        iburst: yes
+  roles:
+      - rhel-system-roles.timesync
+====
+ansible-playbook timesync.yml
+timedatectl
+====
+
+
 [admin@control ansible]$ sudo yum install rhel-system-roles -y
 
 [admin@control ansible]$ vim timesync.yml
