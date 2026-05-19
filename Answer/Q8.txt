@@ -1,3 +1,65 @@
+8. Use roles from Ansible Galaxy Create a playbook called /home/admin/ansible/roles.yml
+* The playbook contains a play that runs on host in the balances host group and uses the balancer role.
+- This role configures a service to load balance web server request between hosts in the webserver host group.
+- Browsing to host in the balances host group ( for example
+http://system5.domain1.example.com) produces the following output: Welcome to
+system3.domain1.example.com on 172.24.1.8
+- Reloading the Browser produces output from the AlterNet web server:
+Welcome to system4.domain1.example.com on 172.24.1.9
+* The Playbook contains a play the runs on hosts in webserver host group and user the phpinfo role. 
+- Browsing to host in the webserver host group with the URL /hello.php produces the following output : Hello PHP World from FQDN
+- For example Browsing to http://system3.domain1.example.com/hello.php produces the
+following output: Hello PHP World from system3.domain1.example.com along with various
+details of the PHP configuration include the version of PHP that is installed.
+@powered by JSNH
+- Similarly, Browsing to http://system4.doamin1.example.com/hello.php, produces the following output: Hello PHP World from system4.domain1.example.com along with various details of the PHP configuration including the version of PHP that is installed.
+====
+Depends on q5
+====
+ansible/roles.yml
+- name: Run the phpinfo first
+  hosts: webservers
+  roles:
+    - phpinfo
+- name: Run the balancer second
+  hosts: balancers
+  roles:
+    - balancer
+====
+roles/balancer/tasks/main.yml
+---
+- name: Instalar haproxy
+  ansible.builtin.yum:
+    name: haproxy
+    state: present
+- name: Copiar configuración haproxy
+  ansible.builtin.template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+  notify: restart haproxy
+- name: Habilitar y arrancar haproxy
+  ansible.builtin.service:
+    name: haproxy
+    state: started
+    enabled: true
+
+
+
+
+
+
+
+
+
+
+
+
+ansible-navigator run  roles.yml -m stdout 
+curl http://serverd.lab.example.com
+====
+
+
+
 [admin@control ~]$ cd ansible/
 Note : Cretae 5 files  and define fatcs 
 
@@ -43,6 +105,162 @@ Queda en modo escucha
 
 - Instalar
 ansible-galaxy install -r requirements.yml -p /home/admin/ansible/roles
+
+
+=========================================================================
+/ansible/deploy-haproxy.yml
+---
+- name: Deploy haproxy role on balancer group
+  hosts: balancers
+  roles:
+    - balancer
+- name: Deploy phpinfo role on webservers hostgroup
+  hosts: webservers
+  roles:
+    - phpinfo
+====
+---
+# vars file for balancer
+ # Allow no/tcp connections
+ - port: 8000/tcp
+ # Allow http requests from load balancer
+ - zone: internal
+   service: http
+   source: 192.1.68.0.115 #(n5)
+haproxy_servers: # (n3-n4)
+  - name: node3
+    ip: 192.168.0.113
+    backend_port: 80
+  - name: node4
+    ip: 192.168.0114
+    backend_port: 80
+====
+roles/phpinfo/templates/hello.j2
+<?php
+@echo "{{ web_message }} from {{ ansible_fqdn }}";
+phpinfo{};
+?>
+====
+roles/phpinfo/vars/main.yml
+---
+# vars file for phpinfo
+wem_message: Hello PHP world
+====
+
+==================================================================================
+Solución con copilot
+==================================================================================
+++++++++ Preparación de role php info ++++++++
+Creación plantilla roles/phpinfo/templates/hello.j2
+<?php
+echo "{{ web_message }} from {{ ansible_fqdn }}";
+?>
+====
+Variables definidas roles/phpinfo/defaults/main.yml
+---
+web_message: "Hello PHP World"
+====
+Tareas configuradas roles/phpinfo/tasks/main.yml
+- name: Instalar Apache y PHP
+  yum:
+    name:
+      - httpd
+      - php
+    state: present
+
+- name: Copiar archivo hello.php
+  template:
+    src: hello.j2
+    dest: /var/www/html/hello.php
+    owner: apache
+    group: apache
+    mode: '0644'
+
+- name: Habilitar y arrancar Apache
+  service:
+    name: httpd
+    state: started
+    enabled: yes
+====
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++++++++ Preparación de role balancer ++++++++
+Configuración copiada roles/balancer/templates/haproxy.cfg.j2
+global
+    log /dev/log    local0
+    log /dev/log    local1 notice
+    daemon
+    maxconn 256
+
+defaults
+    log     global
+    mode    http
+    option  httplog
+    option  dontlognull
+    retries 3
+    timeout connect 5000ms
+    timeout client  50000ms
+    timeout server  50000ms
+
+frontend http_front
+    bind *:80
+    default_backend webservers
+
+backend webservers
+    balance roundrobin
+    server node3 192.168.0.113:80 check
+    server node4 192.168.0.114:80 check
+====
+Tareas configuradas roles/balancer/tasks/main.yml
+- name: Instalar HAProxy
+  yum:
+    name: haproxy
+    state: present
+
+- name: Copiar configuración de HAProxy
+  template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Habilitar y arrancar HAProxy
+  service:
+    name: haproxy
+    state: started
+    enabled: yes
+
+- name: Permitir tráfico HTTP en firewall
+  ansible.posix.firewalld:
+    service: http
+    permanent: yes
+    state: enabled
+
+- name: Recargar firewall
+  ansible.builtin.command: firewall-cmd --reload
+====
+Validaciones en webservers
+curl http://192.168.0.113
+curl http://192.168.0.113/hello.php
+curl http://192.168.0.114
+curl http://192.168.0.114/hello.php
+====
+Validación en balancer
+curl http://192.168.0.115
+curl http://192.168.0.115/hello.php
+====
+Rutas clave
+- Control node:
+roles/phpinfo/templates/hello.j2
+roles/phpinfo/defaults/main.yml
+roles/phpinfo/tasks/main.yml
+roles/balancer/templates/haproxy.cfg.j2
+roles/balancer/tasks/main.yml
+- Webservers (node3, node4):
+/var/www/html/hello.php
+- Balanceador (node5):
+/etc/haproxy/haproxy.cfg
+
 
 
 
