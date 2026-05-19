@@ -17,20 +17,20 @@
 Archivo de usuarios: user_list.yml
 users:
 - name: david
-uid: 1040
-job: developer
+  uid: 1040
+  job: developer
 
 - name: natasha
-uid: 1041
-job: manager
+  uid: 1041
+  job: manager
 
 - name: harry
-uid: 1042
-job: developer
+  uid: 1042
+  job: developer
 
 - name: sarah
-uid: 1043
-job: manager
+  uid: 1043
+  job: manager
 
 
 
@@ -85,4 +85,7 @@ job: manager
 :wq!
 [admin@control ansible]$ date +%s -d "30 days"
 [admin@control ansible]$ ansible-navigator run users.yml --vault-password-file=secret.txt -m stdout
+ansible all -m shell -a "grep -E \"david|natasha|harry|sarah\" /etc/passwd"
+ansible all -m shell -a 'for u in david natasha harry sarah; do userdel -r "$u"; done'
+
 
