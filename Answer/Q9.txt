@@ -14,11 +14,11 @@ node5.doamin1.example.com node5 172.24.10.13
 Note: The order in which the inventory host names appear is not important
 
 ===
-hosts.j2
+ansible/hosts.j2
 127.0.0.1       localhost localhost.localdomain localhost4 localhost4.localdomain4
 ::1             localhost localhost.localdomain localhost6 localhost6.localdomain6
 ===
-host.yml
+ansible/host.yml
 ---
 - name: task 9
   hosts: all
@@ -39,6 +39,7 @@ host.yml
       when: inventory_hostname in groups['dev']
 ===
 [admin@control ~]$ ansible-navigator run hosts.yml -m stdout 
+ansible dev -m shell -a "cat /etc/myhosts"
 ===
 ansible-doc lineinfile
 
