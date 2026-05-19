@@ -18,5 +18,5 @@ PW_manager: Imamgr
 
 [admin@control ansible]$ echo "whenyouwishuponastar" > secret.txt
 
-
+ansible-vault view locker.yml
 --vault-password-file
