@@ -48,6 +48,13 @@ SIZE_OF_DISK_VBD={{ ansible_devices.sdb.size }}
 SIZE_OF_DISK_VDB=NONE
 {% endif %}
 
+====
+total_memory={{ ansible_memtotal_mb | default('NONE') }}
+bios_version={{ ansible_bios_version | default('NONE') }}
+disk_vda_size={{ ansible_devices.vda.size | default('NONE') }}
+disk_vdb_size={{ ansible_devices.vdb.size | default('NONE') }}
+====
+
 
 [admin@control ansible]$ ansible-navigator run  hwreport.yml -m stdout 
 
