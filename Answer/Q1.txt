@@ -1,3 +1,15 @@
+Configuración VIM
+vim ~/.vimrc
+:set autoindent
+:set smartindent
+:filetype plugin indent on
+autocmd FileType yaml setlocal ai ts=2 sw=2 et
+set cursorcolumn
+highlight CursorColumn ctermbg=blue guibg=#1e90ff
+
+
+
+====
 1. Install and Configure Ansible on the control node as follows:
 * Install the required packages.
 * Create a static inventory file called /home/admin/ansible/inventory as follows:
