@@ -6,6 +6,18 @@ vim ~/.vimrc
 autocmd FileType yaml setlocal ai ts=2 sw=2 et
 set cursorcolumn
 highlight CursorColumn ctermbg=blue guibg=#1e90ff
+===
+" Activar detección de tipo de archivo y reglas de indentación
+filetype plugin indent on
+" Indentación YAML (2 espacios)
+autocmd FileType yaml setlocal expandtab ts=2 sw=2 ai
+" Opciones útiles
+set number          " Mostrar números de línea
+set cursorline      " Resaltar la línea actual
+set cursorcolumn    " Resaltar la columna actual
+highlight CursorColumn ctermbg=blue guibg=#1e90ff
+syntax on           " Activar resaltado de sintaxis
+===
 
 
 
