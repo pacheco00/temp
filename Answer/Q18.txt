@@ -1,3 +1,8 @@
+18. Configure CronJob
+Create a cronjob for user natasha in all nodes, the playbook name crontab.yml and the job
+details are Every 2 minutes the job will execute logger "EX294 in progress"
+====
+
 [admin@control ansible]$ vim crontab.yml
 
 - name : Create a cronjob 
@@ -12,3 +17,6 @@
       state: present
 
 [admin@control ansible]$ ansible-playbook crontab.yml -m stdout
+
+=====
+ansible all -m shell -a "crontab -u natasha -l"
