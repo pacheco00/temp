@@ -136,6 +136,6 @@ Debes ver el VG research.
 
 Corre tu playbook lv.yml y valida que se cree /dev/research/data.
 
-
+ansible node5 -m shell -a "lvremove -y /dev/research/data"
 sudo lvremove /dev/research/data
 
