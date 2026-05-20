@@ -1,3 +1,12 @@
+17. Use a RHEL system role
+Create a playbook name selinux.yml and use system roles
+Set selinux mode as enforcing in all manage node
+====
+cat /usr/share/ansible/roles/rhel-system-roles.selinux/README.md
+grep -n -C 3 "enforcing" /usr/share/ansible/roles/rhel-system-roles.selinux/README.md
+====
+
+
 [admin@control ansible]$ vim selinux.yml
 
 - name: Configure selinux as enforcing mode
