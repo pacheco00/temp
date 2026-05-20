@@ -18,45 +18,46 @@ displayed
 [admin@control ansible]$ vim lv.yml
 - hosts: all
   tasks:
+    - block:
         - block:
-                - block:
-                        - community.general.lvol:
-                             vg: research
-                             lv: data
-                             size: 1500m
-                  when: ansible_lvm.vgs.research.size_g > '1500MiB'
-                
-                - block:
-                      - ansible.builtin.debug:
-                            msg: "Could not create logical volume of that size "
-                      - community.general.lvol:
-                             vg: research
-                             lv: data
-                             size: 800m
-                  when: ansible_lvm.vgs.research.size_g < '1500MiB'        
-          when: ansible_lvm.vgs.research is defined 
+            - community.general.lvol:
+                vg: research
+                lv: data
+                size: 1500m
+          when: ansible_lvm.vgs.research.size_g | int > 1500
 
-        - name: Format filesystem
-          community.general.filesystem:
-                    fstype: ext4
-                    dev: /dev/research/data
-          when: ansible_lvm.vgs.research is defined
+        - block:
+            - ansible.builtin.debug:
+                msg: "Could not create logical volume of that size"
+            - community.general.lvol:
+                vg: research
+                lv: data
+                size: 800m
+          when: ansible_lvm.vgs.research.size_g | int < 1500
+      when: ansible_lvm.vgs.research is defined
 
-        
+    - name: Format filesystem
+      community.general.filesystem:
+        fstype: ext4
+        dev: /dev/research/data
+      when: ansible_lvm.vgs.research is defined
 
-        - ansible.builtin.debug:
-                msg: "volume group does not exist"
-          when: ansible_lvm.vgs.research is not defined
 
 # ansible-navigator run lv.yml -m stdout
 
 :wq!
 
 (Note: May be this variable not worked in your case, then use ansible all -m setup -a filter=*lvm*,  get proper vairable like this solution  )
-
-
-
+====
 [admin@control ansible]$  ansible-playbook lv.yml
+====
+ansible-doc community.general.lvol
+ansible-doc --snippet community.general.lvol
+
+
+
+
+
 
 
 Error de sintaxis porque la collection community.general no está instalada.
