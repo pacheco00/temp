@@ -8,9 +8,9 @@ Location of Collection inside http://utility.lab13.example.com/materails
 ansible-doc -t collection redhat.rhel_system_roles
 ====
 URLs Lab
-ansible-galaxy collection install http://utility.lab13.example.com/materails/rhel_system_role -p /home/admin/ansible/mycollections
-ansible-galaxy collection install http://utility.lab13.example.com/materails/posix-1.20.2.tar.gz -p /home/admin/ansible/mycollections
-ansible-galaxy collection install http://utility.lab13.example.com/materails/community-general-5.5.0.tar.gz -p /home/admin/ansible/mycollections
+ansible-galaxy collection install http://utility.lab13.example.com/materails/rhel_system_role -p /home/admin/ansible/mycollection
+ansible-galaxy collection install http://utility.lab13.example.com/materails/posix-1.20.2.tar.gz -p /home/admin/ansible/mycollection
+ansible-galaxy collection install http://utility.lab13.example.com/materails/community-general-5.5.0.tar.gz -p /home/admin/ansible/mycollection
 ====
 Colecciones públicas para pruebas
 Descarga
