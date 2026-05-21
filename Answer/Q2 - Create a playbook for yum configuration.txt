@@ -14,8 +14,8 @@ release
 - The repository is enabled
 
 Repository 2: -
-- The name of the repository is EX294_STREM
-- The description is EX294 base software
+- The name of the repository is EX294_STREAM
+- The description is EX294 stream software
 - The base URL is http://content.example.com/rhel9.0/x86_64/dvd/AppStream
 - GPG signature checking is enabled
 - The GPG Key URL is http://content.example.com/rhel9.0/x86_64/dvd/RPM-GPG-KEYredhat-
@@ -46,13 +46,16 @@ yum.yml
   - name: Repo 1
     ansible.builtin.yum_repository:
       name: EX294_STREM
-      description: EX294 base software
+      description: EX294 stream software
       baseurl: https://download.fedoraproject.org/pub/epel/$releasever/$basearch/
       enabled: yes
       gpgcheck: yes
 ====
 Prueba de la coinfiguración de los repos en los nodos
 dnf repolist enabled
+====
+
+
 ====
 Ejemplo con repositorios reales para prueba:
 ---
@@ -66,7 +69,7 @@ Ejemplo con repositorios reales para prueba:
         description: EX294 base software
         baseurl: http://mirror.centos.org/centos/9-stream/BaseOS/x86_64/os/
         gpgcheck: yes
-        gpgkey: http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-Stream-9
+        gpgkey: http://mirror.stream.centos.org/9-stream/RPM-GPG-KEY-CentOS-Stream-9
         enabled: yes
     - name: Crear repositorio EX294_STREM
       yum_repository:
@@ -74,9 +77,12 @@ Ejemplo con repositorios reales para prueba:
         description: EX294 stream software
         baseurl: http://mirror.centos.org/centos/9-stream/AppStream/x86_64/os/
         gpgcheck: yes
-        gpgkey: http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-Stream-9
+        gpgkey: http://mirror.stream.centos.org/9-stream/RPM-GPG-KEY-CentOS-Stream-9
         enabled: yes
 ====
+ansible all -m shell -a "ls /etc/yum.repos.d"
+ansible all -m shell -a 'rm -f "/etc/yum.repos.d/EX294 base software.repo" "/etc/yum.repos.d/EX294 stream software.repo"'
+
 Cambiar el estado de los repositorios a absent, para quitarlos y no tener problemas en el siguiente punto.
 ====
     - name: Crear repositorio EX294_BASE
