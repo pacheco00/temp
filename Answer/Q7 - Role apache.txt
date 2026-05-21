@@ -2,8 +2,7 @@
 - The httpd package is install, enabled on boot and started
 - The Firewall is enabled & running with a rule to allow access the web server
 - A template file index.html.j2 and is used to create the file /var/www/html/index.html with the
-Welcome to HOSTNAME ON IPADDRESS where HOSTNAME is the fqdn of the managed
-node and ip address is the ip address of managed node
+Welcome to HOSTNAME ON IPADDRESS where HOSTNAME is the fqdn of the managed node and ip address is the ip address of managed node
 * create a playbook called /home/admin/ansible/newrole.yml that uses this role as follow:
 - The playbook runs on host in the webservers host group
 ====
@@ -38,13 +37,15 @@ roles/apache/tasks/main.yml
     src: index.html.j2
     dest: /var/www/html/index.html
 ====
-newrole.yml
+ansible/newrole.yml
 - hosts: webservers
   roles:
        - apache
 ====
 Crear index en apache/template/index.html.j2
 Welcome to {{ ansible_fqdn }} on {{ ansible_default_ipv4.address}}
+====
+ansible node1 -m setup-a 'filert=*fqdn*' / *ip*
 ====
 Ejecutar newrole.yml
 Prueba: curl http://servera.lab.example.com 
