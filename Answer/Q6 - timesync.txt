@@ -5,10 +5,9 @@
 - Configures the role to use the currently active NTP provider
 - Configure the role to use the time server 172.24.1.254
 - Configure the role to enable the iburst parameter.
-
-+ depends on q4
 ====
 yum install rhel-system-roles -y
+ansible-galaxy list
 vim /user/share/ansible/roles/rhel-system-roles.timesync/README.md
 ====
 timesync.yml
@@ -23,6 +22,7 @@ timesync.yml
 ====
 ansible-playbook timesync.yml
 timedatectl
+ansible all -m shell -a "grep -i server /etc/chrony.conf"
 ====
 
 
