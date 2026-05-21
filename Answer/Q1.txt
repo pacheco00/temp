@@ -57,6 +57,8 @@ host_key_checking = False
 become=true
 become_method=sudo
 become_user=root
+===
+export ANSIBLE_CONFIG=/home/admin/ansible/ansible.cfg
 
 ansible-config view
 ====
@@ -134,6 +136,9 @@ become_user=root
 [admin@control ~]$  vim .bashrc
 export ANSIBLE_CONFIG=/home/admin/ansible/ansible.cfg  (bottem in the file)
 :wq!
+
+export ANSIBLE_CONFIG=/home/admin/ansible/ansible.cfg
+
 
 [admin@control ~]$ ansible all -m ping (Check whether task is implement sucessfull or not)
 
