@@ -15,6 +15,118 @@ details of the PHP configuration include the version of PHP that is installed.
 - Similarly, Browsing to http://system4.doamin1.example.com/hello.php, produces the following output: Hello PHP World from system4.domain1.example.com along with various details of the PHP configuration including the version of PHP that is installed.
 ====
 Depends on q5
+Inicializa roles vacíos:
+/home/admin/ansible/roles
+ansible-galaxy init balancer
+ansible-galaxy init phpinfo
+=====
+* Creacuón yml principal
+ansible/roles.yml
+---
+- name: Deploy haproxy role on balancer group
+  hosts: balancers
+  roles:
+    - balancer
+
+- name: Deploy phpinfo role on webservers group
+  hosts: webservers
+  roles:
+    - phpinfo
+=====
+* Preparación role Balancer
+ansible/roles/balancer/vars/main.yml
+firewall_rule:
+  - port: 80/tcp
+
+haproxy_servers:
+  - name: node3
+    ip: 192.168.0.113
+    backend_port: 80
+  - name: node4
+    ip: 192.168.0.114
+    backend_port: 80
+=====
+ansible/roles/balancer/templates/hsproxy.cfg.j2
+global
+    daemon
+
+defaults
+    mode http
+
+frontend http_front
+    bind *:80
+    default_backend webservers
+
+backend webservers
+    balance roundrobin
+    server node3 192.168.0.113:80 check
+    server node4 192.168.0.114:80 check
+=====
+* Preparación role phpinfo
+ansible/roles/phpinfo/vars/main.yml (define mensaje a mostrat en página php)
+---
+web_message: Hello PHP World
+=====
+ansible/roles/phoinfo/templates/hello.j2 (mensaje de cada webserver)
+<?php
+echo "\n {{ web_message }} from {{ ansible_fqdn }} \n";
+?>
+=====
+ansible/roles/phpinfo/tasks/main.yml (Instala php, arranca servicios, abre puerto 80 firewall, copia plantilla hello.j2
+---
+- name: Instalar Apache y PHP
+  yum:
+    name:
+      - httpd
+      - php
+    state: present
+
+- name: Habilitar y arrancar Apache
+  service:
+    name: httpd
+    state: started
+    enabled: yes
+
+- name: allow httpd through firewall
+  ansible.builtin.firewalld:
+    service: http
+    permanent: yes
+    immediate: yes
+    state: enabled
+
+- name: Copiar archivo hello.php
+  template:
+    src: hello.j2
+    dest: /var/www/html/hello.php
+=====
+* Funcionamiento
+El playbook principal (roles.yml) orquesta todo: aplica balancer en el grupo balancers y phpinfo en el grupo webservers.
+
+El rol balancer configura HAProxy para que el host balancer (192.168.0.115) distribuya las peticiones HTTP entre los webservers (192.168.0.113 y 192.168.0.114).
+
+El rol phpinfo prepara cada webserver con Apache + PHP y genera la página hello.php que muestra el mensaje dinámico con el FQDN y la salida de phpinfo().
+
+Al acceder a http://192.168.0.115/hello.php, HAProxy alterna las respuestas entre los dos webservers, mostrando el mensaje correcto de cada uno.
+=====
+* Pruebas
+curl http://192.168.0.113/hello.php
+curl http://192.168.0.114/hello.php
+curl http://192.168.0.115/hello.php
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ====
 ansible/roles.yml
 - name: Run the phpinfo first
