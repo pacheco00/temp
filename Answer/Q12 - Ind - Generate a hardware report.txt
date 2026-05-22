@@ -10,13 +10,48 @@ Each line of the output file contains a single key=value pair.
 - your playbook should Download the file from http://server.network.example.com/materials/hwreport.empty and save it is aas /root/hwreport.txt
 - Modify /root/hwreport.txt with the correct values 
 - if a hardware item does not exist, the associated value should be set to NONE        
-===
-bajar/crear hwreport.empty
+====
+====
+ansible/hwreport.yml
+---
+- name: Generate hardware report
+  hosts: all
+  tasks:
 
-[admin@control ansible]$ wget http://server.network.example.com/materials/hwreport.empty 
+    - name: Download empty hwreport file
+      ansible.builtin.get_url:
+        url:  http://raw.githubusercontent.com/pacheco00/temp/main/hwreport.empty
+        dest: /root/hwreport.txt
 
-[admin@control ansible]$ vim hwreport.yml
+    - name: Render hardware report from template
+      ansible.builtin.template:
+        src: /home/admin/ansible/hwreport.empty
+        dest: /root/hwreport.txt
+====
+ansible/hwreport.empty
+INVENTORY_HOSTNAME={{ ansible_hostname }}
+TOTAL_MEMORY={{ ansible_memtotal_mb | default('NONE') }}
+BIOS_VERSION={{ ansible_bios_version | default('NONE') }}
+SIZE_OF_DISK_VDA={{ ansible_devices.vda.size | default('NONE') }}
+SIZE_OF_DISK_VBD={{ ansible_devices.vdb.size | default('NONE') }}
+====
 
+
+
+
+
+
+
+
+
+
+
+
+
+bajar/crear ansible/hwreport.empty
+wget http://server.network.example.com/materials/hwreport.empty 
+====
+ansible/hwreport.yml
 - hosts: all
   tasks:
          
@@ -28,13 +63,7 @@ bajar/crear hwreport.empty
          ansible.builtin.template: 
                    src: /home/admin/ansible/hwreport.empty
                    dest: /root/hwreport.txt
-:wq!
-
-/etc/resolv.cfg
-nameserver 8.8.8.8
-nameserver 1.1.1.1
-
-===
+====
 ansible dev -m setup -a 'filter=*ansible_*'
 [admin@control ansible]$ vim hwreport.empty       (File name given in exam " Downloaded filed ")
 
@@ -49,12 +78,17 @@ SIZE_OF_DISK_VDB=NONE
 {% endif %}
 
 ====
-total_memory={{ ansible_memtotal_mb | default('NONE') }}
-bios_version={{ ansible_bios_version | default('NONE') }}
-disk_vda_size={{ ansible_devices.vda.size | default('NONE') }}
-disk_vdb_size={{ ansible_devices.vdb.size | default('NONE') }}
+INVENTORY_HOSTNAME={{ ansible_hostname }}
+TOTAL_MEMORY={{ ansible_memtotal_mb | default('NONE') }}
+BIOS_VERSION={{ ansible_bios_version | default('NONE') }}
+SIZE_OF_DISK_VDA={{ ansible_devices.vda.size | default('NONE') }}
+SIZE_OF_DISK_VBD={{ ansible_devices.vdb.size | default('NONE') }}
 ====
 
 
 [admin@control ansible]$ ansible-navigator run  hwreport.yml -m stdout 
 
+
+/etc/resolv.cfg
+nameserver 8.8.8.8
+nameserver 1.1.1.1
