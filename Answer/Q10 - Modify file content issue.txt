@@ -35,6 +35,18 @@ The playbook replaces the content of /etc/issue with a single line of text as fo
 
 ansible dev,test,prod -a 'cat /etc/issue'
 ansible all -m shell -a "cat /etc/issue"
+====
+* Con loop
+- hosts: all
+  tasks:
+    - name: Update /etc/issue depending on group
+      ansible.builtin.copy:
+        content: "{{ item.content }}"
+        dest: /etc/issue
+      when: inventory_hostname in groups[item.group]
+      loop:
+        - { group: "dev",  content: "Deployment" }
+        - { group: "test", content: "Test" }
+        - { group: "prod", content: "Production" }
+=====
 
-
-ansible-playbook --syntax-check
