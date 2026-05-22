@@ -56,6 +56,7 @@ ansible/webcontent.yml
       ansible.builtin.copy:
         content: "\n Development \n"
         dest: /var/www/html/webdev/index.html
+        setype: httpd_sys_content_t
 ====
 curl http://192.168.0.111/webdev/
 
