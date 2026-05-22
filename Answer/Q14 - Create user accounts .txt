@@ -12,9 +12,10 @@
 - a member of supplementary group opsmgr *
 - password should use the SHA512 gas format 
 * Your playbook should work using the vault password file /home/admin/ansible/secret.txt created elsewhere in this exam         
-===
-
-Archivo de usuarios: user_list.yml
+====
+ansible-doc -t filter ansible.builtin.password_hash
+====
+ansible/user_list.yml
 users:
 - name: david
   uid: 1040
@@ -31,13 +32,50 @@ users:
 - name: sarah
   uid: 1043
   job: manager
-
-
-
+====
 [admin@control ansible]$ wget http://server.network.example.com/materials/user_list.yml 
+====
+* Solución con loop
+ansible/users.yml
+---
+- name: Ensure groups and create users
+  hosts: all
+  vars_files:
+    - /home/admin/ansible/user_list.yml
+    - /home/admin/ansible/locker.yml
 
-[admin@control ansible]$ vim users.yml
+  tasks:
+    # --- Grupos ---
+    - name: Ensure required groups exist
+      group:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - devops
+        - opsmgr
 
+    # --- Usuarios Developer ---
+    - name: Create developer users on dev and test
+      user:
+        name: "{{ item.name }}"
+        password: "{{ pw_devloper | password_hash('sha512') }}"
+        groups: devops
+        password_expire_max: 30
+      loop: "{{ users }}"
+      when: item.job == "developer" and (inventory_hostname in groups['dev'] or inventory_hostname in groups['test'])
+
+    # --- Usuarios Manager ---
+    - name: Create manager users on prod
+      user:
+        name: "{{ item.name }}"
+        password: "{{ pw_manager | password_hash('sha512') }}"
+        groups: opsmgr
+        password_expire_max: 30
+      loop: "{{ users }}"
+      when: item.job == "manager" and inventory_hostname in groups['prod']
+====
+* Solución sin loop
+ansible/users.yml
 - hosts: dev
   vars_files:
           - /home/admin/ansible/user_list.yml   
@@ -46,7 +84,7 @@ users:
         - name: add group 
           ansible.builtin.group:
               name: devops
-               state: present
+              state: present
 
         - name: add  users who has developer job descrption
           ansible.builtin.user:
@@ -57,8 +95,6 @@ users:
           with_items:
                    - "{{ users }}"
           when: item.job == 'developer'
-
-
 
 - hosts: prod
   vars_files:
@@ -82,7 +118,7 @@ users:
 
 (Note:- Description name is given in exam like a job = manager)
 
-:wq!
+====
 [admin@control ansible]$ date +%s -d "30 days"
 [admin@control ansible]$ ansible-navigator run users.yml --vault-password-file=secret.txt -m stdout
 ansible all -m shell -a "grep -E \"david|natasha|harry|sarah\" /etc/passwd"
