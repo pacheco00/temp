@@ -15,9 +15,45 @@ Note: The order in which the inventory host names appear is not important
 
 ===
 ansible/hosts.j2
-127.0.0.1       localhost localhost.localdomain localhost4 localhost4.localdomain4
-::1             localhost localhost.localdomain localhost6 localhost6.localdomain6
+{% for host in groups['all'] %}
+{{ hostvars[host].ansible_host }} {{ hostvars[host].ansible_fqdn | default(host) }} {{ host }}
+{% endfor %}
 ===
+ansible/host.yml
+---
+- name: task 9
+  hosts: all
+
+  tasks:
+    - name: copy /etc/hosts to /etc/myhosts
+      ansible.builtin.template:
+        src: /home/admin/ansible/hosts.j2
+        dest: /etc/myhosts
+      when: inventory_hostname in groups['dev']
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ansible/host.yml
 ---
 - name: task 9
@@ -42,6 +78,9 @@ ansible/host.yml
 ansible dev -m shell -a "cat /etc/myhosts"
 ===
 ansible-doc lineinfile
+
+======
+
 
 
 	 
