@@ -1,9 +1,5 @@
 INVENTORY_HOSTNAME={{ ansible_hostname }}
-TOTAL_MEMORY={{ ansible_memtotal_mb }}
-BIOS_VERSION={{ ansible_bios_version }}
-SIZE_OF_DISK_VDA={{ ansible_devices.sda.size }}
-{% if ansible_devices.vdb.size is defined %}
-SIZE_OF_DISK_VBD={{ ansible_devices.sdb.size }}
-{% else %}
-SIZE_OF_DISK_VDB=NONE
-{% endif %}
+TOTAL_MEMORY={{ ansible_memtotal_mb | default('NONE') }}
+BIOS_VERSION={{ ansible_bios_version | default('NONE') }}
+SIZE_OF_DISK_VDA={{ ansible_devices.vda.size | default('NONE') }}
+SIZE_OF_DISK_VBD={{ ansible_devices.vdb.size | default('NONE') }}
