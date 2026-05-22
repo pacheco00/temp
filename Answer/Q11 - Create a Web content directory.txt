@@ -2,16 +2,87 @@
 Create a playbook called /home/admin/ansible/webcontent.yml as follows: 
 * The playbook runs managed node in the dev host group
 * Create the directory /webdev with the following requirement: 
-- it is owner by the webdev group -it has regular permissions:                                                                                             
+- it is owner by the webdev group -it has regular permissions:    
 - owner=read+write+execute,group=r+w+x,other=r+x 
 - it has special permission: set group GID 
 * Symbolically link /webdev to /var/www/html/webdev
 * Create the file /webdev/index.html with a single line of text that reads: Development 
 * Browsing this directory on host in the dev host group ( for example http://system1.domain1.example.com/webdev/) produces the following output: Developmen
-===
+====
+ansible/webcontent.yml
+---
+- name: Configurar entorno tarea 11
+  hosts: dev
+  tasks:
 
-[admin@control ansible]$ vim webcontent.yml
+    - name: Instalar apache
+      ansible.builtin.yum:
+        name: httpd
+        state: present
 
+    - name: Habilitar iniciar servicio
+      ansible.builtin.service:
+        name: httpd
+        state: started
+        enabled: true
+
+    - name: abrir firewall
+      ansible.builtin.firewalld:
+        service: http
+        permanent: true
+        state: enabled
+        immediate: yes
+
+    - name: Add group
+      ansible.builtin.group:
+        name: webdev
+        state: present
+
+    - name: Create a directory
+      ansible.builtin.file:
+        name: /webdev
+        group: webdev
+        mode:  2775
+        state: directory
+        setype: httpd_sys_content_t
+
+    - name: Create symbolic link
+      ansible.builtin.file:
+        src: /webdev
+        dest: /var/www/html/webdev
+        state: link
+
+    - name: Create file in /var/www/html
+      ansible.builtin.copy:
+        content: "\n Development \n"
+        dest: /var/www/html/webdev/index.html
+====
+curl http://192.168.0.111/webdev/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ansible/webcontent.yml
 - hosts: dev
   tasks:
          - name: Add group
