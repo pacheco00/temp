@@ -1,4 +1,5 @@
-15. ReKey an Ansible vault Rekey an existing Ansible vault as follows:
+15. ReKey an Ansible vault 
+Rekey an existing Ansible vault as follows:
 - Download the Ansible vault from http://server.network.example.com/materials/salariries.yml to /home/admin/ansible/
 - The current vault password is glegunge - The new vault password is migwhick
 - The vault remains in an encrypted state with the new password .
