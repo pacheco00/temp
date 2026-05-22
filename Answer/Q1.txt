@@ -50,7 +50,7 @@ ansible --version
 #remote_user=admin
 inventory=/home/admin/ansible/inventory
 roles_path=/home/admin/ansible/roles:/usr/share/ansible/roles
-collections_path=/home/admin/ansible/mycollection:~/.ansible/collections:/usr/share/ansible/collections
+collections_paths = /home/admin/ansible/mycollection:/home/admin/.ansible/collections:/usr/share/ansible/collections:/root/.ansible/collections
 host_key_checking = False
 
 [privilege_escalation]
