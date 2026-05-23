@@ -34,45 +34,35 @@ packages.yml
                       name: '*'
                       state: latest
 ====
-
-
-
-
-
-
-
-
-[admin@control ansible]$ vim package.yml
-
-- name: package installation
-  hosts:
-       - dev
-       - test
-       - prod
+* Segunsa opción
+- name: Packages config
+  hosts: all
+  become: True
   tasks:
-  - name: installing php and mariadb-server
-    ansible.builtin.dnf:
-      name:
+
+    - name: Install php and mariadb
+      when: inventory_hostname in groups['dev'] or inventory_hostname in groups['test'] or inventory_hostname in groups['prod']
+      loop:
         - php
-        - mariadb-server
-      state: present 
+        - mariadb
+      ansible.builtin.dnf:
+        name: "{{ item }}"
+        state: latest
 
-- name: group package installation
-  hosts: dev
-  tasks:
-   - name: installing group package 'Development tools'
-     ansible.builtin.dnf:
-      name: '@RPM Development Tools'  
-      state: present
-    
-   - name: updating all 
-     ansible.builtin.dnf:
-                      name: '*'
-                      state: latest
-           
-:wq!
+    - name: Install the 'RPM Development tools' package group
+      when: inventory_hostname in groups['dev']
+      ansible.builtin.dnf:
+        name: '@RPM Development Tools'
+        state: latest
 
-[admin@control ansible]$ ansible-navigator run package.yml -m stdout
+    - name: Update all packages 
+      when: inventory_hostname in groups['dev']
+      ansible.builtin.dnf:
+        name: '*'
+        state: latest
+====
+ansible dev,test,prod -a 'which mariadb php'
+ansible dev -a 'dnf group list installed' -b
 
 --- 
 ansible-doc yum
