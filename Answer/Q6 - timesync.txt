@@ -23,6 +23,7 @@ timesync.yml
 ansible-playbook timesync.yml
 timedatectl
 ansible all -m shell -a "grep -i server /etc/chrony.conf"
+ansible all -a 'grep 172 /etc/chrony.conf'
 ====
 
 
