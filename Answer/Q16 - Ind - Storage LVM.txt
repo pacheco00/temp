@@ -11,48 +11,51 @@ logical volume of that size should be displayed and size 800 MiB should be used 
 * If the volume research does not exist, the error message volume group does not exist should be
 displayed
 * Does NOT mount the logical volume in any way.
-===
+====
+ansible/lv.yml
+---
+- name: configure vol
+  hosts: node5
+  ignore_errors: yes
+  vars:
+    lvsize: "1500m"
 
-[admin@control ~]$ cd ansible/
-
-[admin@control ansible]$ vim lv.yml
-- hosts: all
   tasks:
-    - block:
-        - block:
-            - community.general.lvol:
-                vg: research
-                lv: data
-                size: 1500m
-          when: ansible_lvm.vgs.research.size_g | int > 1.5
 
-        - block:
-            - ansible.builtin.debug:
-                msg: "Could not create logical volume of that size"
-            - community.general.lvol:
-                vg: research
-                lv: data
-                size: 800m
-          when: ansible_lvm.vgs.research.size_g | int < 1.5
-      when: ansible_lvm.vgs.research is defined
+    - name: check vg exists
+      command: vgs research
+      register: vg_status
 
-    - name: Format filesystem
-      community.general.filesystem:
+    - name: error if vg does not exist
+      ansible.builtin.debug:
+        msg: "volume group does not exist"
+      when: vg_status is failed
+
+    - name: create data lv
+      community.general.lvol:
+        vg: research
+        lv: data
+        size: "{{ lvsize }}"
+      when: vg_status is not failed
+      register: lv_status
+
+    - debug: var=lv_status
+
+    - name: error message vol not created
+      ansible.builtin.debug:
+        msg: "could not create lv of {{ lvsize }}, size 800 MiB shoud be used instead"
+      when: lv_status is failed and '"insufficient free space" in lv_status.err'
+
+    - name: format lv
+      ansible.builtin.filesystem:
         fstype: ext4
         dev: /dev/research/data
-      when: ansible_lvm.vgs.research is defined
-
-
-# ansible-navigator run lv.yml -m stdout
-
-:wq!
-
-(Note: May be this variable not worked in your case, then use ansible all -m setup -a filter=*lvm*,  get proper vairable like this solution  )
+      when: lv_status is not failed and lv_status is changed
 ====
-[admin@control ansible]$  ansible-playbook lv.yml
+ansible node5 -m shell -a "lvremove -y /dev/research/data"
+sudo lvremove /dev/research/data
 ====
-ansible-doc community.general.lvol
-ansible-doc --snippet community.general.lvol
+
 
 
 
@@ -114,7 +117,7 @@ Luego usa Ansible para inicializar el VG en todos los nodos:
 yaml
 ---
 - name: Preparar VG research en todos los nodos
-  hosts: all
+  hosts: node5
   become: true
   tasks:
     - name: Crear PV en /dev/sdb
@@ -126,6 +129,18 @@ yaml
       command: vgcreate research /dev/sdb
       args:
         creates: /dev/research
+
+    - name: Mostrar resultado de vgs
+      command: vgs
+      register: vgs_result
+
+    - name: Imprimir salida de vgs
+      debug:
+        var: vgs_result.stdout
+
+*** Elimiunar para proxima práctica
+
+
 Después de esto, tu playbook lv.yml podrá crear el LV data sin problemas.
 
 ✅ Verificación
