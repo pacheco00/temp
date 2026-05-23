@@ -58,51 +58,51 @@ sudo lvremove /dev/research/data
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Versión 2
 ---
-- name: configure vol
-  hosts: node5
-  vars:
-    lvsize: "1500m"
-    fallback_size: "800m"
-
+- name: Storage LVM - Create and use a Logical Volume
+  hosts: all
   tasks:
 
-    - name: check VG exists
+    - name: Check if volume group 'research' exists
       command: vgs research
       register: vg_status
       ignore_errors: yes
+      changed_when: false
 
-    - name: error if VG does not exist
+    - name: Display error if volume group does not exist
       ansible.builtin.debug:
         msg: "volume group does not exist"
-      when: vg_status.rc != 0
+      when: vg_status is failed
 
-    - block:
-        - name: create LV 1500 MiB
-          community.general.lvol:
-            vg: research
-            lv: data
-            size: "{{ lvsize }}"
-          register: lv_status
-          ignore_errors: yes
-      rescue:
-        - name: fallback LV 800 MiB
-          community.general.lvol:
-            vg: research
-            lv: data
-            size: "{{ fallback_size }}"
-          register: lv_fallback
+    - block:  # ← bloque exterior: solo corre si VG existe
 
-        - name: notify fallback
-          ansible.builtin.debug:
-            msg: "Could not create LV of {{ lvsize }}, using {{ fallback_size }} instead"
+        - block:  # ← bloque interior: intenta 1500 MiB
+            - name: Create logical volume 'data' with 1500 MiB
+              community.general.lvol:
+                vg: research
+                lv: data
+                size: 1500m
 
-      always:
-        - name: format LV
+          rescue: # ← solo corre si falla el bloque interior
+            - name: Display error - could not create LV of that size
+              ansible.builtin.debug:
+                msg: "Could not create logical volume of that size"
+
+            - name: Create logical volume 'data' with 800 MiB (fallback)
+              community.general.lvol:
+                vg: research
+                lv: data
+                size: 800m
+
+        - name: Format logical volume with ext4  # ← dentro del bloque exterior
           ansible.builtin.filesystem:
             fstype: ext4
             dev: /dev/research/data
-====
 
+      when: vg_status is not failed
+=====
+ansible node5 -m shell -a "lvremove -y /dev/research/data"
+sudo lvremove /dev/research/data
+====
 
 
 
