@@ -51,6 +51,68 @@ Ejecutar newrole.yml
 Prueba: curl http://servera.lab.example.com 
 ====
 
+
+====
+* Segunda opcion
+====
+roles/apache/vars/main.yml
+# vars file for apache
+packages:
+  - httpd
+  - firewalld
+rules:
+  - https
+  - http
+====
+roles/apache/tasks/main.yml
+# tasks file for apache
+- name: Install the latest version of Apache and firewalld
+  loop: "{{ packages }}"
+  ansible.builtin.dnf:
+    name: "{{ item }}"
+    state: latest
+
+- name: Start service httpd/firewalld and enabled
+  loop: "{{ packages }}"
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: started
+    enabled: True
+
+- name: Permanently enable https/http service, also enable it immediately if possible
+  loop: "{{ rules }}"
+  ansible.posix.firewalld:
+    service: "{{ item }}"
+    state: enabled
+    permanent: True
+    immediate: True
+
+- name: Template a file
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+    mode: '0644'
+====
+roles/apache/templates/index.html.j2
+Welcome to {{ ansible_facts['fqdn'] }}.cluster.loc on {{ ansible_facts['default_ipv4']['address'] }}
+====
+Create a playbook to deploy the role in a file named apache-role.yml
+- name: Apache role deploy
+  hosts: webservers
+  become: True
+  roles:
+    - apache
+====
+ansible-playbook apache-role.yml
+curl vm-node3
+curl vm-node4
+====
+
+
+
+
+
+
 [admin@control ~]$ cd ansible/roles/
 
 [admin@control roles]$ ansible-galaxy init apache
