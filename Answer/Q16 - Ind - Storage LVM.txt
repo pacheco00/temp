@@ -55,7 +55,53 @@ ansible/lv.yml
 ansible node5 -m shell -a "lvremove -y /dev/research/data"
 sudo lvremove /dev/research/data
 ====
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Versión 2
+---
+- name: configure vol
+  hosts: node5
+  vars:
+    lvsize: "1500m"
+    fallback_size: "800m"
 
+  tasks:
+
+    - name: check VG exists
+      command: vgs research
+      register: vg_status
+      ignore_errors: yes
+
+    - name: error if VG does not exist
+      ansible.builtin.debug:
+        msg: "volume group does not exist"
+      when: vg_status.rc != 0
+
+    - block:
+        - name: create LV 1500 MiB
+          community.general.lvol:
+            vg: research
+            lv: data
+            size: "{{ lvsize }}"
+          register: lv_status
+          ignore_errors: yes
+      rescue:
+        - name: fallback LV 800 MiB
+          community.general.lvol:
+            vg: research
+            lv: data
+            size: "{{ fallback_size }}"
+          register: lv_fallback
+
+        - name: notify fallback
+          ansible.builtin.debug:
+            msg: "Could not create LV of {{ lvsize }}, using {{ fallback_size }} instead"
+
+      always:
+        - name: format LV
+          ansible.builtin.filesystem:
+            fstype: ext4
+            dev: /dev/research/data
+====
 
 
 
