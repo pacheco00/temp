@@ -34,6 +34,32 @@ ansible/roles.yml
     - phpinfo
 =====
 * Preparación role Balancer
+ansible/roles/balancer/tasks/main.yml (Instala php, arranca servicios, abre puerto 80 firewall en nodos balancer group)
+---
+- name: Instalar HAProxy
+  yum:
+    name: haproxy
+    state: present
+
+- name: Copiar configuración de HAProxy
+  template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+
+- name: Habilitar y arrancar HAProxy
+  service:
+    name: haproxy
+    state: started
+    enabled: yes
+
+- name: Permitir HTTP en firewall
+  ansible.builtin.firewalld:
+    service: http
+    permanent: yes
+    immediate: yes
+    state: enabled
+
+=====
 ansible/roles/balancer/vars/main.yml
 firewall_rule:
   - port: 80/tcp
@@ -46,7 +72,7 @@ haproxy_servers:
     ip: 192.168.0.114
     backend_port: 80
 =====
-ansible/roles/balancer/templates/hsproxy.cfg.j2
+ansible/roles/balancer/templates/haproxy.cfg.j2
 global
     daemon
 
@@ -72,28 +98,7 @@ ansible/roles/phoinfo/templates/hello.j2 (mensaje de cada webserver)
 echo "\n {{ web_message }} from {{ ansible_fqdn }} \n";
 ?>
 =====
-ansible/roles/phpinfo/tasks/main.yml (Instala php, arranca servicios, abre puerto 80 firewall, copia plantilla hello.j2
----
-- name: Instalar Apache y PHP
-  yum:
-    name:
-      - httpd
-      - php
-    state: present
-
-- name: Habilitar y arrancar Apache
-  service:
-    name: httpd
-    state: started
-    enabled: yes
-
-- name: allow httpd through firewall
-  ansible.builtin.firewalld:
-    service: http
-    permanent: yes
-    immediate: yes
-    state: enabled
-
+ansible/roles/phpinfo/tasks/main.yml
 - name: Copiar archivo hello.php
   template:
     src: hello.j2
