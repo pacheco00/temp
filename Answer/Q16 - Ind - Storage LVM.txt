@@ -14,50 +14,6 @@ displayed
 ====
 ansible/lv.yml
 ---
-- name: configure vol
-  hosts: node5
-  ignore_errors: yes
-  vars:
-    lvsize: "1500m"
-
-  tasks:
-
-    - name: check vg exists
-      command: vgs research
-      register: vg_status
-
-    - name: error if vg does not exist
-      ansible.builtin.debug:
-        msg: "volume group does not exist"
-      when: vg_status is failed
-
-    - name: create data lv
-      community.general.lvol:
-        vg: research
-        lv: data
-        size: "{{ lvsize }}"
-      when: vg_status is not failed
-      register: lv_status
-
-    - debug: var=lv_status
-
-    - name: error message vol not created
-      ansible.builtin.debug:
-        msg: "could not create lv of {{ lvsize }}, size 800 MiB shoud be used instead"
-      when: lv_status is failed and '"insufficient free space" in lv_status.err'
-
-    - name: format lv
-      ansible.builtin.filesystem:
-        fstype: ext4
-        dev: /dev/research/data
-      when: lv_status is not failed and lv_status is changed
-====
-ansible node5 -m shell -a "lvremove -y /dev/research/data"
-sudo lvremove /dev/research/data
-====
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-Versión 2
----
 - name: Storage LVM - Create and use a Logical Volume
   hosts: all
   tasks:
@@ -105,7 +61,8 @@ sudo lvremove /dev/research/data
 ====
 
 ++++++++++++++++++++++++++++++++++++++++++++++
-* Version 3
+* Version 2
+---
 - name: LVM config
   hosts: all
   become: True
@@ -118,12 +75,12 @@ sudo lvremove /dev/research/data
           ansible.builtin.debug:
             msg: volume group does not exist
 
-        - name: Create a logical volume of 1200m
+        - name: Create a logical volume of 1500m
           when: "'research' in ansible_lvm.vgs"
           community.general.lvol:
             vg: research
             lv: data
-            size: 1200m
+            size: 1500m
 
       rescue:
         - name: Cannot create a lv ?
@@ -149,7 +106,75 @@ sudo lvremove /dev/research/data
 ====
 ansible all -a 'lsblk' -b
 ansible all -a 'lsblk /dev/research/data --fs' -b
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+** Preparar lab
+---
+- name: Limpiar y preparar VG research en /dev/sdb
+  hosts: node5 node4
+  become: true
+  tasks:
 
+    # ── LIMPIEZA ────────────────────────────────────────────────────────────
+
+    - name: Obtener LVs asociados a /dev/sdb
+      shell: lvs --noheadings -o lv_path,devices | grep '/dev/sdb' | awk '{print $1}'
+      register: lvs_en_sdb
+      changed_when: false
+      failed_when: false
+
+    - name: Desactivar y eliminar LVs asociados a /dev/sdb
+      command: lvremove -f {{ item }}
+      loop: "{{ lvs_en_sdb.stdout_lines }}"
+      when: lvs_en_sdb.stdout_lines | length > 0
+
+    - name: Obtener VG asociado a /dev/sdb
+      shell: pvs --noheadings -o vg_name /dev/sdb 2>/dev/null | tr -d ' '
+      register: vg_en_sdb
+      changed_when: false
+      failed_when: false
+
+    - name: Eliminar VG asociado a /dev/sdb
+      command: vgremove -f {{ vg_en_sdb.stdout }}
+      when:
+        - vg_en_sdb.stdout is defined
+        - vg_en_sdb.stdout | length > 0
+
+    - name: Eliminar PV en /dev/sdb
+      command: pvremove -ff -y /dev/sdb
+      failed_when: false
+
+    - name: Limpiar firmas del disco con wipefs
+      command: wipefs -a /dev/sdb
+
+    # ── PREPARACIÓN ─────────────────────────────────────────────────────────
+
+    - name: Crear PV en /dev/sdb
+      command: pvcreate /dev/sdb
+
+    - name: Crear VG research
+      command: vgcreate research /dev/sdb
+
+    # ── VERIFICACIÓN ────────────────────────────────────────────────────────
+
+    - name: Mostrar estado de PVs
+      command: pvs
+      register: pvs_result
+      changed_when: false
+
+    - name: Mostrar estado de VGs
+      command: vgs
+      register: vgs_result
+      changed_when: false
+
+    - name: Imprimir PVs
+      debug:
+        var: pvs_result.stdout
+
+    - name: Imprimir VGs
+      debug:
+        var: vgs_result.stdout
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 
