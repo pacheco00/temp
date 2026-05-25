@@ -36,6 +36,9 @@ syntax on           " Activar resaltado de sintaxis
 - The Install Ansible Content Collection /home/admin/ansible/mycollection
 
 ====
+* Crear ansible.cfg
+ansible-config init --disabled -t all > ansible.cfg
+====
 * Crear rutas
 mkdir -p /home/admn/ansible/roles /home/admin/ansible/mycollection
 ====
