@@ -60,9 +60,12 @@ ansible/users.yml
         name: "{{ item.name }}"
         password: "{{ pw_devloper | password_hash('sha512') }}"
         groups: devops
+        append: yes
         password_expire_max: 30
       loop: "{{ users }}"
-      when: item.job == "developer" and (inventory_hostname in groups['dev'] or inventory_hostname in groups['test'])
+      when:
+          - item.job == "developer"
+          - inventory_hostname in groups['dev'] + groups['test']
 
     # --- Usuarios Manager ---
     - name: Create manager users on prod
@@ -70,9 +73,12 @@ ansible/users.yml
         name: "{{ item.name }}"
         password: "{{ pw_manager | password_hash('sha512') }}"
         groups: opsmgr
+        append: yes
         password_expire_max: 30
       loop: "{{ users }}"
-      when: item.job == "manager" and inventory_hostname in groups['prod']
+      when:
+          - item.job == "manager"
+          - inventory_hostname in groups['prod']
 ====
 * Solución sin loop
 ansible/users.yml
