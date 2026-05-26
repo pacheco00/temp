@@ -35,19 +35,23 @@ packages.yml
                       state: latest
 ====
 * Segunsa opción
-- name: Packages config
-  hosts: all
-  become: True
-  tasks:
+- name: Package installation
+  hosts:
+    - dev
+    - test
+    - prod
+  become: true
 
-    - name: Install php and mariadb
-      when: inventory_hostname in groups['dev'] or inventory_hostname in groups['test'] or inventory_hostname in groups['prod']
-      loop:
-        - php
-        - mariadb
+  vars:
+    common_packages:
+      - php
+      - mariadb-server
+
+  tasks:
+    - name: Install common packages
       ansible.builtin.dnf:
-        name: "{{ item }}"
-        state: latest
+        name: "{{ common_packages }}"
+        state: present
 
     - name: Install the 'RPM Development tools' package group
       when: inventory_hostname in groups['dev']
