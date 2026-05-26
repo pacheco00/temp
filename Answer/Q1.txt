@@ -17,8 +17,16 @@ set cursorline      " Resaltar la línea actual
 set cursorcolumn    " Resaltar la columna actual
 highlight CursorColumn ctermbg=blue guibg=#1e90ff
 syntax on           " Activar resaltado de sintaxis
-===
-
+====
+vim ~/.vimrc
+filetype plugin ident on
+syntax on
+au Filetype yaml setlocal expandtab ts=2 sw=2 ai
+set cursorline
+set CursorColumn
+set nocompatible
+highlight CursorColum ctermbg=blue guibg=#1e90ff
+====
 
 
 ====
