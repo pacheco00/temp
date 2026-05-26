@@ -12,6 +12,8 @@ Each line of the output file contains a single key=value pair.
 - if a hardware item does not exist, the associated value should be set to NONE        
 ====
 ====
+ansible node1 -m setup | less
+====
 ansible/hwreport.yml
 ---
 - name: Generate hardware report
