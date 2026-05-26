@@ -19,7 +19,7 @@ highlight CursorColumn ctermbg=blue guibg=#1e90ff
 syntax on           " Activar resaltado de sintaxis
 ====
 vim ~/.vimrc
-filetype plugin ident on
+filetype plugin indent on
 syntax on
 au Filetype yaml setlocal expandtab ts=2 sw=2 ai
 set cursorline
