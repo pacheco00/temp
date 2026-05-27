@@ -1,5 +1,6 @@
 ## Tarea 1
 * Configurar ~/.vimrc
+```
 vim ~/.vimrc
 filetype plug indent on
 syntax on
@@ -8,17 +9,22 @@ set cursorline
 set cursorcolumn
 set nocompatible
 hightlight cursorsolumn ctermbg=blue guibg=#1e90ff
-
+```
 * Instalar ansible
+```
 yum install ansible-core -y
 dnf install ansible-core
 dnf install rhel-system-roles
-
+```
 * Crear rutas de trabajo
+```
 mkdir -p /home/admin/ansible/roles /home/admin/ansible/mycollection
-
+```
 * ansible-cfg
-- ansible-config init --disabled -t all > ansible.cfg
+```
+ansible-config init --disabled -t all > ansible.cfg
+```
+```
 [defaults]
 remote_user =
 inventory = /home/admin/ansible/inventory
@@ -30,26 +36,29 @@ host_key_checking = false
 become = true
 become_method = sudo
 become_user = root
-
+```
 * inventory
+```
 [dev]
 node1 ansible_host=192.168.0.111
 [test]
 node2 ansible_host=192.168.0.112
 [webservers:children]
 dev
-
+```
 * Export variable
+```
 export ANSIBLE_CONFIG=/home/admin/ansible/ansible.cfg
-
-* Prueba [privilege-escalations]
+```
 
 ======
-+ Tarea 2 - crear archivo yum.yml y repositorios
+## Tarea 2 - Crear archivo yum.yml y repositorios
+```
 ansible-doc -l 
 ansible-doc rpm_key
 ansible-doc yum_repository
-
+```
+```
 yum.yml
 ---
 - name: Configurar repositorios
@@ -71,14 +80,18 @@ yum.yml
         gpgcheck: yes
         gpgkey: http://
         enabled: yes
-
+```
+```
 ansible all -a "ls /etc/yum.repos.d"
+```
 
 ======
-+ Tarea 3 - Install packages packages.yml
+## Tarea 3 - Install packages packages.yml
+```
 ansible-doc yum
-
+```
 packages.yml
+```
 ---
 - name: packages installation
   hosts:
@@ -104,34 +117,40 @@ packages.yml
       yum:
       name: [*]
       state: latest        
-
+```
 =====
-+ Tarea 4 - Contento collections
+## Tarea 4 - Content collections
+```
 ansible-doc -t collection redhat.rhel_system_roles
 ansible-galaxy collection install XXX -p /home/admin/ansible/mycollection
 ansible-galaxy collection list -p /home/admin/ansible/mycollection
-
+```
 =====
-+ Tarea 5 - Install roles using ansible-galaxy (balance/phpinfo)
+## Tarea 5 - Install roles using ansible-galaxy (balance/phpinfo)
 
 requirements.yml
+```
 - src: http://
   name: balancer
 - src: http://
   name: phpinfo
-
+```
+```
 ansible-galaxy install -r requirements.yml
 ansible-galaxy collection install -r 
 ansible-galaxy list
 ansible-galaxy init balancer/phpinfo
+```
 
 =====
-+ Tarea 6 - timesync
+## Tarea 6 - Timesync
+```
 yum install rhel-system-roles
 ansible-galaxy list
 vim /usr/share/ansible/roles/rhel-system-roles.timesync/README.md
-
-timessync.yml
+```
+timesync.yml
+```
 ---
 - name: task 6
   hosts: all
@@ -141,17 +160,21 @@ timessync.yml
         iburst: yes
   roles:
     - rhel-system-roles.timesync
-
+```
+```
 timedatectl
 grep 172 /etc/chrony.conf
+```
 
 =====
-+ Tarea 7 - Crear role y usarlo
+## Tarea 7 - Crear role y usarlo
 
 * Crear role
+```
 ansible-galaxy init apache
-
-* roles/apache/tasks/main.yml
+```
+roles/apache/tasks/main.yml
+```
 ---
 - name: Install http
   yum:
@@ -177,29 +200,33 @@ ansible-galaxy init apache
   template:
     src: index.html.j2
     dest: /var/www/html/index.html
-
+```
 * Crear index apache/template/index.html.j2
+```
 Welcome to {{ ansible_fqdn }} on {{ ansible_default_ipv4.address }}
-
+```
 * Crear ansible/newrole.yml
+```
 - hosts: webservers
   roles:
     - apache
+```
 
 =====
-+ Tarea 8 - Balancer
-
+## Tarea 8 - Balancer
 * Crear roles para el ejercicio
 ansible/roles.yml
+```
 - name: Role haproxy on balancer group
   roles:
     - balancer
 - name: Role phpinfo on webservers group
   roles:
     - phpinfo
-
-* Preparación Balancer Role
+```
+### Preparación Balancer Role
 roles/balancer/tasks/main.yml
+```
 - name: Install haproxy
   yum:
     name: haproxy
@@ -219,8 +246,9 @@ roles/balancer/tasks/main.yml
     permanent: yes
     immediate: yes
     state: enabled
-
+```
 roles/balancer/vars/main.yml
+```
 firewall_rule:
   - port: 80/tcp
 haproxy_servers:
@@ -230,8 +258,9 @@ haproxy_servers:
   - name: node4
     ip: 192
     backend_port: 80
-
+```
 roles/balancer/templates/haproxy.cfg.j2
+```
 global
   daemon
 defaults
@@ -243,24 +272,29 @@ backend webservers
   balance roundrobin
   server node3 192:80 check
   server node4 192:80 check
-
-* Preparación phpinfo Role
+```
+### Preparación phpinfo Role
 /roles/phpinfo/vars/main.yml
+```
 web_message: Hello PHP World
-
+```
 /roles/phpinfo/templates/hello.j2
+```
 <?php
 echo " {{ web_message }} from {{ ansible_fqdn }} \n"
 ?>
+```
 
 =====
-+ Tarea 9 - Generate host file
+## Tarea 9 - Generate host file
 ansible/hosts.j2
+```
 {% for host in groups['all'] %}
 {{ hostvars[host].ansible_host }} {{ hostvars[host].ansible_fqdn | default(host) }} {{ host }}
 {% endfor %}
-
+```
 ansible/host.yml
+```
 - name: task 9
   hosts: all
   tasks:
@@ -269,6 +303,6 @@ ansible/host.yml
     template:
       src: /home/admin/ansible/hosts.j2
       dest: /etc/myhosts
-
+```
 =====
-+ Tarea 10 - Content issue
+## Tarea 10 - Content issue
