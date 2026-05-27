@@ -217,9 +217,11 @@ Welcome to {{ ansible_fqdn }} on {{ ansible_default_ipv4.address }}
 * ansible/roles.yml
 ```
 - name: Role haproxy on balancer group
+  hosts: balancers
   roles:
     - balancer
 - name: Role phpinfo on webservers group
+  hosts: webservers
   roles:
     - phpinfo
 ```
