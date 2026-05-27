@@ -58,8 +58,8 @@ ansible-doc -l
 ansible-doc rpm_key
 ansible-doc yum_repository
 ```
+* yum.yml
 ```
-yum.yml
 ---
 - name: Configurar repositorios
   hosts: all
@@ -90,7 +90,7 @@ ansible all -a "ls /etc/yum.repos.d"
 ```
 ansible-doc yum
 ```
-packages.yml
+* packages.yml
 ```
 ---
 - name: packages installation
@@ -127,8 +127,7 @@ ansible-galaxy collection list -p /home/admin/ansible/mycollection
 ```
 =====
 ## Tarea 5 - Install roles using ansible-galaxy (balance/phpinfo)
-
-requirements.yml
+* requirements.yml
 ```
 - src: http://
   name: balancer
@@ -149,7 +148,7 @@ yum install rhel-system-roles
 ansible-galaxy list
 vim /usr/share/ansible/roles/rhel-system-roles.timesync/README.md
 ```
-timesync.yml
+* timesync.yml
 ```
 ---
 - name: task 6
@@ -173,7 +172,7 @@ grep 172 /etc/chrony.conf
 ```
 ansible-galaxy init apache
 ```
-roles/apache/tasks/main.yml
+* roles/apache/tasks/main.yml
 ```
 ---
 - name: Install http
@@ -214,8 +213,8 @@ Welcome to {{ ansible_fqdn }} on {{ ansible_default_ipv4.address }}
 
 =====
 ## Tarea 8 - Balancer
-* Crear roles para el ejercicio
-ansible/roles.yml
+### Crear roles para el ejercicio
+* ansible/roles.yml
 ```
 - name: Role haproxy on balancer group
   roles:
@@ -225,7 +224,7 @@ ansible/roles.yml
     - phpinfo
 ```
 ### Preparación Balancer Role
-roles/balancer/tasks/main.yml
+* roles/balancer/tasks/main.yml
 ```
 - name: Install haproxy
   yum:
@@ -247,7 +246,7 @@ roles/balancer/tasks/main.yml
     immediate: yes
     state: enabled
 ```
-roles/balancer/vars/main.yml
+* roles/balancer/vars/main.yml
 ```
 firewall_rule:
   - port: 80/tcp
@@ -259,7 +258,7 @@ haproxy_servers:
     ip: 192
     backend_port: 80
 ```
-roles/balancer/templates/haproxy.cfg.j2
+* roles/balancer/templates/haproxy.cfg.j2
 ```
 global
   daemon
@@ -274,11 +273,11 @@ backend webservers
   server node4 192:80 check
 ```
 ### Preparación phpinfo Role
-/roles/phpinfo/vars/main.yml
+* /roles/phpinfo/vars/main.yml
 ```
 web_message: Hello PHP World
 ```
-/roles/phpinfo/templates/hello.j2
+* /roles/phpinfo/templates/hello.j2
 ```
 <?php
 echo " {{ web_message }} from {{ ansible_fqdn }} \n"
@@ -287,13 +286,13 @@ echo " {{ web_message }} from {{ ansible_fqdn }} \n"
 
 =====
 ## Tarea 9 - Generate host file
-ansible/hosts.j2
+* ansible/hosts.j2
 ```
 {% for host in groups['all'] %}
 {{ hostvars[host].ansible_host }} {{ hostvars[host].ansible_fqdn | default(host) }} {{ host }}
 {% endfor %}
 ```
-ansible/host.yml
+* ansible/host.yml
 ```
 - name: task 9
   hosts: all
@@ -306,3 +305,234 @@ ansible/host.yml
 ```
 =====
 ## Tarea 10 - Content issue
+* /ansible/issue.yml
+```
+- hosts: all
+  tasks:
+    - name: Update /etc/issue depending on group
+      copy:
+        content: "{{ item.content }}"
+        dest: /etc/issue
+      when: inventory_hostname in groups[item.group]
+      loop:
+        - { group: "dev", content: "Development" }
+        - { group: "test", content: "Test" }
+        - { group: "prod", content: "Production" }
+```
+=====
+## Tarea 11 - Web Content
+* /ansible/webcontent.yml
+```
+- name: Configirar entorno tarea 11
+  hosts: dev
+  tasks:
+    - name: Install apache
+      yum:
+        name: http
+        state: present
+    - name: Enabled/started service
+      service:
+        name: http
+        state: started
+        enabled: yes
+    - name: Abrir firewall
+      firewald:
+        service: http
+        permanent: true
+        state: started
+        enabled: yes
+    - name: Add group
+      group:
+        name: webdev
+        state: present
+    - name: Create directory
+      file:
+        name: /webdev
+        group: webdev
+        mode: 2775
+        state: directory
+        append: yes
+        setype: httpd_sys_content_t
+    - name: Create symbolic link
+      file:
+        src: /webdev
+        dest: /var/www/html/webdev
+        state: link
+    - name: Create file in /var/www/html
+      copy:
+        content: Development
+        dest: /var/www/html/index.html
+        setype: hrrpd_sys_content_t
+```
+
+=====
+## Tarea 12 - HW Report
+* /ansible/hwreport.yml
+```
+- name: Generate HW Report
+  hosts: all
+  tasks:
+    - name: Render HW Report from template
+      template:
+        src: /home/ansible/hwreport.empty
+        dest: /root/hwreport.txt
+```
+* /ansible/hwreport.empty
+```
+INVEMTORY_HOSTNAME={{ ansible_hostname }}
+TOTAL_MEMORY={{ ansible_memtotal_mb | default('NONE') }}
+BIOS_VERSION={{ ansible_bios_version | desafult('NONE') }}
+SIZE_OF_DISK_VDA={{ ansible_devices_vda.size | default('NONE') }}
+SIZE_OF_DISK_VDB={{ ansible_devices_vdb.size | default('NONE') }}
+```
+
+=====
+ ## Tarea 13 - Ansible Vault
+ * ansible-vault create locker.yml
+ * ansible-vault view locker.yml --vault-password-file=secret.txt
+```
+pw_developer: Imadev
+pw_manager: Imamgr
+```
+* secret.txt
+```
+echo "password" > secrets.txt
+```
+
+=====
+## Tarea 14 - Create user accounts
+* ansible-doc -t filter ansible.builtin.password_hash
+* ansible/user_list.yml
+```
+users:
+- name: david
+  uid: 1040
+  job: developer
+```
+* ansible/users.yml
+```
+- name: task 14
+  hosts: all
+  vars_files:
+    - ./user_list.yml
+    - ./users.yml
+  tasks:
+    - name: Ensure groups
+      group:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - devops
+        - opsmgr
+    - name: Create users on dev and test
+      user:
+        name: "{{ item.name }}"
+        password: "{{ pw_developer | password('sha512') }}"
+        groups: devops
+        append: yes
+        password_expire_max: 30
+      loop:
+        - {{ users }}
+      when:
+        - item.job == "developer"
+        - inventory_hostname in groups['dev'] + groups['test']
+    - name: Create users on prod
+      user:
+        name: "{{ item.name }}"
+        password: ""{{ pw_manager | password_hash('sha512') }}"
+        groups: opsmgr
+        append: yes
+        password_expire_max: 30
+      loop:
+        - {{ users}}
+      when:
+        - item.job == "manager"
+        - inventory_hostname in groups['prod']
+```
+
+=====
+## Tarea 15 - Rekey
+* ansible/salaries.yml
+```
+ansible-vault rekey salaries.yml
+Vault password: flectring
+New Vault password: 123qwe,./
+Confirm New Vault password: 123qwe,./
+Rekey successful
+```
+
+=====
+## Tarea 16 - Storgae LVM
+* ansible/lv.yml
+```
+- name: task 16
+  hosts: all
+  tasks:
+    - name: Check vg reseach exists
+      command: vgs research
+      register: vg_status
+      ignore_errors: yes
+      change_when: false
+    - name: Display error if vg does not exist
+      debug:
+        msg: "vg research does not exist"
+      when: vg_status is failed
+    - block: # si vg existe
+        - block: # interno, crea lv 1500m
+            - name: Create lv 1500m
+              ansible.community.lvol:
+                name: research
+                lv: data
+                size: 1500
+          rescue: # si falla bloque interior 150
+            - name: Display error
+              debug:
+                msg: "Could not create lv of that size"
+            - name: Create lv 800m
+              ansible.community:lvol
+              name: research
+                lv: data
+                size: 800m
+          - name: Format vl # dentro de bloque exterior
+            filesystem:
+              fstype: ext4
+              dev: /dev/research/data
+      when: vg_status is not failed
+  ```
+
+=====
+## tarea 17 - Use RHEL System Role
+* cat /usr/share/ansible/roles/rhel-system-roles.selinux/README.md
+* ansible/selinux.yml
+```
+- name: Configure selinux as enforce mode
+  hosts: all
+  vars:
+    - selinux_state: enforce
+  roles:
+    - role: rhel-system-roles.selinux
+      become: true      
+```
+
+=====
+ ## Tarea 18 - CronJob
+ * ansible/crontab.yml
+```
+- name: Create cronjob
+  hosts: all
+  tasks:
+    - name: Cronjob for logger
+      cron:
+        name: Create logger
+        user: natasha
+        minute: "*/2"
+        job: "logger -p "EX294 in progress"
+        state: present
+```
+```
+ansible all -a "crontab -u natasha -l"
+```
+
+
+
+
