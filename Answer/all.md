@@ -1,4 +1,4 @@
-Tarea 1
+## Tarea 1
 * Configurar ~/.vimrc
 vim ~/.vimrc
 filetype plug indent on
