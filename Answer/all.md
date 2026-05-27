@@ -266,7 +266,7 @@ global
   daemon
 defaults
   mode http
-frontend http_fronend
+frontend http_front
   bind: *:80
   default_backend webservers
 backend webservers
