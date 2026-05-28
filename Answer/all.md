@@ -267,7 +267,7 @@ global
 defaults
   mode http
 frontend http_front
-  bind: *:80
+  bind *:80
   default_backend webservers
 backend webservers
   balance roundrobin
@@ -285,7 +285,13 @@ web_message: Hello PHP World
 echo " {{ web_message }} from {{ ansible_fqdn }} \n"
 ?>
 ```
-
+* /roles/phpinfo/tasks/main.yml
+```
+- name: Copar hello.php
+  template:
+    src: hello.j2
+    dest: /var/www/html/hello.php
+```
 =====
 ## Tarea 9 - Generate host file
 * ansible/hosts.j2
