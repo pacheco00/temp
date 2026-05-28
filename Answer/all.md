@@ -480,7 +480,7 @@ Rekey successful
       command: vgs research
       register: vg_status
       ignore_errors: yes
-      change_when: false
+      changed_when: false
     - name: Display error if vg does not exist
       debug:
         msg: "vg research does not exist"
