@@ -489,7 +489,7 @@ Rekey successful
         - block: # interno, crea lv 1500m
             - name: Create lv 1500m
               community.general.lvol:
-                name: research
+                vg: research
                 lv: data
                 size: 1500
           rescue: # si falla bloque interior 150
@@ -498,7 +498,7 @@ Rekey successful
                 msg: "Could not create lv of that size"
             - name: Create lv 800m
               community.general.lvol:
-              name: research
+                vg: research
                 lv: data
                 size: 800m
           - name: Format vl # dentro de bloque exterior
