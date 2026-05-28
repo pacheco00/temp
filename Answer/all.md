@@ -50,7 +50,7 @@ dev
 ```
 export ANSIBLE_CONFIG=/home/admin/ansible/ansible.cfg
 ```
-
+---
 ======
 ## Tarea 2 - Crear archivo yum.yml y repositorios
 ```
@@ -84,7 +84,7 @@ ansible-doc yum_repository
 ```
 ansible all -a "ls /etc/yum.repos.d"
 ```
-
+---
 ======
 ## Tarea 3 - Install packages packages.yml
 ```
@@ -118,6 +118,7 @@ ansible-doc yum
       name: [*]
       state: latest        
 ```
+---
 =====
 ## Tarea 4 - Content collections
 ```
@@ -125,6 +126,7 @@ ansible-doc -t collection redhat.rhel_system_roles
 ansible-galaxy collection install XXX -p /home/admin/ansible/mycollection
 ansible-galaxy collection list -p /home/admin/ansible/mycollection
 ```
+---
 =====
 ## Tarea 5 - Install roles using ansible-galaxy (balance/phpinfo)
 * requirements.yml
@@ -140,7 +142,7 @@ ansible-galaxy collection install -r
 ansible-galaxy list
 ansible-galaxy init balancer/phpinfo
 ```
-
+---
 =====
 ## Tarea 6 - Timesync
 ```
@@ -164,7 +166,7 @@ vim /usr/share/ansible/roles/rhel-system-roles.timesync/README.md
 timedatectl
 grep 172 /etc/chrony.conf
 ```
-
+---
 =====
 ## Tarea 7 - Crear role y usarlo
 
@@ -210,7 +212,7 @@ Welcome to {{ ansible_fqdn }} on {{ ansible_default_ipv4.address }}
   roles:
     - apache
 ```
-
+---
 =====
 ## Tarea 8 - Balancer
 ### Crear roles para el ejercicio
@@ -311,6 +313,7 @@ echo " {{ web_message }} from {{ ansible_fqdn }} \n"
       src: /home/admin/ansible/hosts.j2
       dest: /etc/myhosts
 ```
+---
 =====
 ## Tarea 10 - Content issue
 * /ansible/issue.yml
@@ -327,6 +330,7 @@ echo " {{ web_message }} from {{ ansible_fqdn }} \n"
         - { group: "test", content: "Test" }
         - { group: "prod", content: "Production" }
 ```
+---
 =====
 ## Tarea 11 - Web Content
 * /ansible/webcontent.yml
@@ -373,7 +377,7 @@ echo " {{ web_message }} from {{ ansible_fqdn }} \n"
         setype: hrrpd_sys_content_t
 ```
 
-=====
+=====---
 ## Tarea 12 - HW Report
 * /ansible/hwreport.yml
 ```
@@ -390,10 +394,10 @@ echo " {{ web_message }} from {{ ansible_fqdn }} \n"
 INVEMTORY_HOSTNAME={{ ansible_hostname }}
 TOTAL_MEMORY={{ ansible_memtotal_mb | default('NONE') }}
 BIOS_VERSION={{ ansible_bios_version | desafult('NONE') }}
-SIZE_OF_DISK_VDA={{ ansible_devices_vda.size | default('NONE') }}
-SIZE_OF_DISK_VDB={{ ansible_devices_vdb.size | default('NONE') }}
+SIZE_OF_DISK_VDA={{ ansible_devices.vda.size | default('NONE') }}
+SIZE_OF_DISK_VDB={{ ansible_devices.vdb.size | default('NONE') }}
 ```
-
+---
 =====
  ## Tarea 13 - Ansible Vault
  * ansible-vault create locker.yml
@@ -406,7 +410,7 @@ pw_manager: Imamgr
 ```
 echo "password" > secrets.txt
 ```
-
+---
 =====
 ## Tarea 14 - Create user accounts
 * ansible-doc -t filter ansible.builtin.password_hash
@@ -457,7 +461,7 @@ users:
         - item.job == "manager"
         - inventory_hostname in groups['prod']
 ```
-
+---
 =====
 ## Tarea 15 - Rekey
 * ansible/salaries.yml
@@ -507,9 +511,9 @@ Rekey successful
               dev: /dev/research/data
       when: vg_status is not failed
   ```
-
+---
 =====
-## tarea 17 - Use RHEL System Role
+## Tarea 17 - Use RHEL System Role
 * cat /usr/share/ansible/roles/rhel-system-roles.selinux/README.md
 * ansible/selinux.yml
 ```
@@ -521,7 +525,7 @@ Rekey successful
     - role: rhel-system-roles.selinux
       become: true      
 ```
-
+---
 =====
  ## Tarea 18 - CronJob
  * ansible/crontab.yml
