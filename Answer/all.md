@@ -488,7 +488,7 @@ Rekey successful
     - block: # si vg existe
         - block: # interno, crea lv 1500m
             - name: Create lv 1500m
-              ansible.community.lvol:
+              community.general.lvol:
                 name: research
                 lv: data
                 size: 1500
@@ -497,7 +497,7 @@ Rekey successful
               debug:
                 msg: "Could not create lv of that size"
             - name: Create lv 800m
-              ansible.community:lvol
+              community.general.lvol:
               name: research
                 lv: data
                 size: 800m
