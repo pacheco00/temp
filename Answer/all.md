@@ -2,7 +2,7 @@
 * Configurar ~/.vimrc
 ```
 vim ~/.vimrc
-filetype plug indent on
+filetype plugin indent on
 syntax on
 au filetype yaml setlocal expandtab ts=2 sw=2 ai
 set cursorline
