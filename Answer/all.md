@@ -352,9 +352,9 @@ echo " {{ web_message }} from {{ ansible_fqdn }} \n"
     - name: Abrir firewall
       firewald:
         service: http
-        permanent: true
-        state: started
-        enabled: yes
+        state: enabled
+        permanent: yes
+        immediate: yes
     - name: Add group
       group:
         name: webdev
