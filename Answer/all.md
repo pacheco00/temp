@@ -368,9 +368,9 @@ echo " {{ web_message }} from {{ ansible_fqdn }} \n"
         setype: httpd_sys_content_t
     - name: Create symbolic link
       file:
+        state: link
         src: /webdev
         dest: /var/www/html/webdev
-        state: link
     - name: Create file in /var/www/html
       copy:
         content: Development
