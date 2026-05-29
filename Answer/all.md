@@ -361,11 +361,10 @@ echo " {{ web_message }} from {{ ansible_fqdn }} \n"
         state: present
     - name: Create directory
       file:
-        name: /webdev
+        state: directory
+        path:: /webdev
         group: webdev
         mode: 2775
-        state: directory
-        append: yes
         setype: httpd_sys_content_t
     - name: Create symbolic link
       file:
