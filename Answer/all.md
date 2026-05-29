@@ -125,6 +125,8 @@ ansible-doc yum
 ansible-doc -t collection redhat.rhel_system_roles
 ansible-galaxy collection install XXX -p /home/admin/ansible/mycollection
 ansible-galaxy collection list -p /home/admin/ansible/mycollection
+ansible-galaxy collection install collection.downloaded /home/admin/ansible/mycollection 
+ansible-galaxy collection isntall http:// -p /home/admin/ansible/mycollection 
 ```
 ---
 =====
