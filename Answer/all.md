@@ -140,9 +140,9 @@ ansible-galaxy collection isntall http:// -p /home/admin/ansible/mycollection
 ```
 ```
 ansible-galaxy install -r requirements.yml
-ansible-galaxy collection install -r 
-ansible-galaxy list
+ansible-galaxy install -r requirements.yml --roles-path /home/admin/ansible/roles
 ansible-galaxy init balancer/phpinfo
+ansible-galaxy list
 ```
 ---
 =====
