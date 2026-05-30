@@ -428,7 +428,7 @@ users:
   hosts: all
   vars_files:
     - ./user_list.yml
-    - ./users.yml
+    - ./locker.yml
   tasks:
     - name: Ensure groups
       group:
@@ -440,7 +440,7 @@ users:
     - name: Create users on dev and test
       user:
         name: "{{ item.name }}"
-        password: "{{ pw_developer | password('sha512') }}"
+        password: "{{ pw_developer | password_hash('sha512') }}"
         groups: devops
         append: yes
         password_expire_max: 30
