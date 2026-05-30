@@ -445,7 +445,7 @@ users:
         append: yes
         password_expire_max: 30
       loop:
-        - {{ users }}
+        - "{{ users }}"
       when:
         - item.job == "developer"
         - inventory_hostname in groups['dev'] + groups['test']
@@ -457,7 +457,7 @@ users:
         append: yes
         password_expire_max: 30
       loop:
-        - {{ users}}
+        - "{{ users}}"
       when:
         - item.job == "manager"
         - inventory_hostname in groups['prod']
