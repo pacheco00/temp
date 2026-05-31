@@ -40,7 +40,7 @@ ansible/webcontent.yml
 
     - name: Create a directory
       ansible.builtin.file:
-        name: /webdev
+        path: /webdev
         group: webdev
         mode:  2775
         state: directory
