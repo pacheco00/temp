@@ -126,13 +126,36 @@ ansible-doc -t collection redhat.rhel_system_roles
 ansible-galaxy collection install XXX -p /home/admin/ansible/mycollection
 ansible-galaxy collection list -p /home/admin/ansible/mycollection
 ansible-galaxy collection install collection.downloaded /home/admin/ansible/mycollection 
-ansible-galaxy collection isntall http:// -p /home/admin/ansible/mycollection 
+ansible-galaxy collection isntall http:// -p /home/admin/ansible/mycollection
+
+ansible-galaxy collection install -r requirements.yml -p /home/admin/ansible/mycollections
+
+requirements.yml (archivos descargados en ansible)
+collections:
+  - name: ./redhat.rhel_system_roles-1.19.3.tar.gz
+  - name: ./posix-1.20.2.tar.gz
+  - name: ./community-general-5.5.0.tar.gz
 ```
 ---
 =====
 ## Tarea 5 - Install roles using ansible-galaxy (balance/phpinfo)
 * requirements.yml
+
+Guardar en /home/admin/ansible/roles
 ```
+wget http://server.network.example.com/materials/haproxy.tar
+wget http://server.network.example.com/materials/phpinfo.tar
+
+requirement.yml
+roles:
+  - name: balancer
+    src: ./haproxy.tar
+
+  - name: phpinfo
+    src: ./phpinfo.tar
+
+ansible-galaxy role install -r requirement.yml -p /home/admin/ansible/roles
+
 - src: http://
   name: balancer
 - src: http://
