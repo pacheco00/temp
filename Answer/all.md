@@ -229,7 +229,7 @@ ansible-galaxy init apache
 ```
 * Crear index apache/template/index.html.j2
 ```
-Welcome to {{ ansible_fqdn }} on {{ ansible_default_ipv4.address }}
+Welcome to "{{ ansible_fqdn }}" on "{{ ansible_default_ipv4.address }}"
 ```
 * Crear ansible/newrole.yml
 ```
