@@ -61,25 +61,35 @@ ansible-doc yum_repository
 * yum.yml
 ```
 ---
-- name: Configurar repositorios
-  hosts: all
-  tasks:
-    - name: Repo EX294_BASE
-      yum_repository:
-        name: EX294_BASE
-        description: EX294 base software
-        baseurl: http://
-        gpgcheck: yes
-        gpgkey: http://
-        enabled: yes
-    - name: Repo EX294_STREAM
-      yum_repository:
-        name: EX294_STREAM
-        description: EX294 stream software
-        baseurl: http://
-        gpgcheck: yes
-        gpgkey: http://
-        enabled: yes
+   - name: Configure the company Yum/DNF repositories
+     hosts: all
+     tasks:
+       - name: Deploy the GPG key
+         ansible.builtin.rpm_key:
+               key: http://content.example.com/rhel9.0/x86_64/dvd/RPM-GPG-KEY-redhat-release
+               state: present
+
+      - name: Ensure Example Repo exists
+        ansible.builtin.yum_repository:
+           file: baseos
+           name: baseos-internal
+           description: Baseos Description
+           baseurl: http://content.example.com/rhel9.0/x86_64/dvd/BaseOS
+           enabled: yes
+           gpgcheck: yes
+           gpgkey: http://content.example.com/rhel9.0/x86_64/dvd/RPM-GPG-KEY-redhat-release
+           state: present
+
+      - name: Ensure Example Repo 
+        ansible.builtin.yum_repository:
+           file: appstrem
+           name: appstream-internal
+           description: App Description
+           baseurl: http://content/rhel9.0/x86_64/dvd/AppStream
+           enabled: yes
+           gpgcheck: yes
+           gpgkey: http://content.example.com/rhel9.0/x86_64/dvd/RPM-GPG-KEY-redhat-release
+           state: present
 ```
 ```
 ansible all -a "ls /etc/yum.repos.d"
