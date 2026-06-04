@@ -83,6 +83,7 @@ ansible-doc yum_repository
 ```
 ```
 ansible all -a "ls /etc/yum.repos.d"
+curl -I https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Stream-9
 ```
 ---
 ======
