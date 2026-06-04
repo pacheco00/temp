@@ -120,14 +120,16 @@ ansible-doc yum
     - name: Install RPM on dev
       when: inventory_hostname in groups['dev']
       yum:
-      name: "@RPM Development tools" 
-      state: latest
+         name: "@RPM Development tools" 
+         state: present
+      when: inventory_hostname ingroups['dev']
 
     - name: Install lastest packages on dev
       when: inventory_hostname in groups['dev']
       yum:
-      name: [*]
-      state: latest        
+         name: [*]
+         state: latest
+      when: inventory_hostname in groups['dev']       
 ```
 ---
 =====
