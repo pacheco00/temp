@@ -29,7 +29,7 @@ ansible-config init --disabled -t all > ansible.cfg
 remote_user =
 inventory = /home/admin/ansible/inventory
 roles_path = /home/admin/ansible/roles:/usr/share/ansible/roles:~/.ansible/roles:/etc/ansible/roles
-collections_paths = /home/admin/ansible/mycollection:/usr/share/ansible/collections:/root/.ansible/collections
+collections_paths = /home/admin/ansible/mycollection:~/.ansible/collections:/usr/share/ansible/collections:/root/.ansible/collections
 host_key_checking = false
 
 [privilege-escalations]
