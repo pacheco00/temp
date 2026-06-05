@@ -104,6 +104,9 @@ Cambiar el estado de los repositorios a absent, para quitarlos y no tener proble
         enabled: yes
 
 
+curl -I https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Stream-9
+
+
 
 
 
