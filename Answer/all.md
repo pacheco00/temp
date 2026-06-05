@@ -575,7 +575,7 @@ Rekey successful
         name: Create logger
         user: natasha
         minute: "*/2"
-        job: "logger -p "EX294 in progress"
+        job: logger "EX294 in progress"
         state: present
 ```
 ```
