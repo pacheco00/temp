@@ -59,26 +59,31 @@ dnf repolist enabled
 ====
 Ejemplo con repositorios reales para prueba:
 ---
-- name: Configurar repositorios YUM en nodos gestionados
+- name: configure repos
   hosts: all
-  become: true
   tasks:
-    - name: Crear repositorio EX294_BASE
+    - name: gpg key
+      rpm_key:
+        state: present
+        key: https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official
+    - name: Repo 1
       yum_repository:
         name: EX294_BASE
-        description: EX294 base software
+        description: EX294 base sofware
         baseurl: http://mirror.centos.org/centos/9-stream/BaseOS/x86_64/os/
         gpgcheck: yes
-        gpgkey: http://mirror.stream.centos.org/9-stream/RPM-GPG-KEY-CentOS-Stream-9
+        gpgkey: https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official
         enabled: yes
-    - name: Crear repositorio EX294_STREM
+    - name: Repo 2
       yum_repository:
-        name: EX294_STREM
+        name: EX294_STREAM
         description: EX294 stream software
         baseurl: http://mirror.centos.org/centos/9-stream/AppStream/x86_64/os/
         gpgcheck: yes
-        gpgkey: http://mirror.stream.centos.org/9-stream/RPM-GPG-KEY-CentOS-Stream-9
+        gpgkey: https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official
         enabled: yes
+
+
 ====
 ansible all -m shell -a "ls /etc/yum.repos.d"
 ansible all -m shell -a 'rm -f "/etc/yum.repos.d/EX294 base software.repo" "/etc/yum.repos.d/EX294 stream software.repo"'
