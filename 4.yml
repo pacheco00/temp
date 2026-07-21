@@ -1,0 +1,125 @@
+---
+- name: Inventario optimizado
+  hosts: all
+  gather_facts: false
+
+  tasks:
+
+    - name: Obtener toda la informacion
+      shell: |
+        HOST=$(hostname)
+
+        UPTIME=$(awk '{print int($1/86400)}' /proc/uptime)
+
+        source /etc/os-release
+
+        KERNEL=$(uname -r)
+
+        if command -v dnf >/dev/null 2>&1; then
+          UPDATES=$(dnf check-update -q 2>/dev/null | awk 'NF>=3' | wc -l)
+        else
+          UPDATES=$(yum check-update 2>/dev/null | awk 'NF>=3' | wc -l)
+        fi
+
+        echo "$HOST|$UPTIME|$PRETTY_NAME|$KERNEL|$UPDATES"
+      register: server_info
+      changed_when: false
+
+   - name: Mostrar informacion
+      debug:
+        msg: "{{ server_info.stdout }}"
+
+
+
+   - name: Crear variables
+  set_fact:
+    hostname: "{{ server_info.stdout.split('|')[0] }}"
+    uptime: "{{ server_info.stdout.split('|')[1] }}"
+    os: "{{ server_info.stdout.split('|')[2] }}"
+    kernel: "{{ server_info.stdout.split('|')[3] }}"
+    updates: "{{ server_info.stdout.split('|')[4] }}"
+
+   - name: Resumen
+  debug:
+    msg: |
+      Hostname : {{ hostname }}
+      Uptime   : {{ uptime }} dias
+      SO       : {{ os }}
+      Kernel   : {{ kernel }}
+      Updates  : {{ updates }}
+
+      --------------------------------------------------------------
+
+
+---
+- name: Inventario servidores Linux sin gather_facts
+  hosts: linux
+  gather_facts: false
+
+  tasks:
+
+    - name: Obtener informacion del servidor
+      shell: |
+        HOST=$(hostname)
+
+        UPTIME=$(awk '{print int($1/86400)}' /proc/uptime)
+
+        source /etc/os-release
+
+        KERNEL=$(uname -r)
+
+        CPU=$(nproc)
+
+        MEM=$(free -m | awk '/Mem:/ {print $2}')
+
+        if command -v dnf >/dev/null 2>&1; then
+          UPDATES=$(dnf check-update -q 2>/dev/null | awk 'NF>=3' | wc -l)
+        else
+          UPDATES=$(yum check-update 2>/dev/null | awk 'NF>=3' | wc -l)
+        fi
+
+        echo "$HOST|$UPTIME|$PRETTY_NAME|$KERNEL|$CPU|$MEM|$UPDATES"
+      register: server_info
+      changed_when: false
+      failed_when: false
+
+    - name: Crear variables
+      set_fact:
+        hostname: "{{ server_info.stdout.split('|')[0] }}"
+        uptime_days: "{{ server_info.stdout.split('|')[1] }}"
+        os: "{{ server_info.stdout.split('|')[2] }}"
+        kernel: "{{ server_info.stdout.split('|')[3] }}"
+        cpu: "{{ server_info.stdout.split('|')[4] }}"
+        mem_mb: "{{ server_info.stdout.split('|')[5] }}"
+        updates: "{{ server_info.stdout.split('|')[6] }}"
+
+    - name: Mostrar informacion
+      debug:
+        msg: |
+          ==========================================
+          Hostname   : {{ hostname }}
+          Uptime     : {{ uptime_days }} dias
+          SO         : {{ os }}
+          Kernel     : {{ kernel }}
+          CPU        : {{ cpu }} vCPU
+          Memoria    : {{ mem_mb }} MB
+          Pendientes : {{ updates }}
+          ==========================================
+
+----
+
+- name: Resumen final
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+
+    - name: Mostrar reporte consolidado
+      debug:
+        msg: |
+          HOSTNAME | UPTIME | SO | KERNEL | CPU | MEMORIA | UPDATES
+          {% for host in groups['linux'] %}
+          {{ hostvars[host].hostname }} | {{ hostvars[host].uptime_days }} dias | {{ hostvars[host].os }} | {{ hostvars[host].kernel }} | {{ hostvars[host].cpu }} | {{ hostvars[host].mem_mb }} MB | {{ hostvars[host].updates }}
+          {% endfor %}
+
+      
