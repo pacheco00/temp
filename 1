@@ -1,0 +1,15 @@
+---
+- name: Recolectar informacion servidores
+  hosts: linux
+  gather_facts: true
+
+  tasks:
+
+    - name: Mostrar informacion
+      debug:
+        msg:
+          - "Hostname: {{ ansible_hostname }}"
+          - "SO: {{ ansible_distribution }}"
+          - "Version: {{ ansible_distribution_version }}"
+          - "Kernel: {{ ansible_kernel }}"
+          - "Dias uptime: {{ (ansible_uptime_seconds | int / 86400) | round(0,'floor') }}"
