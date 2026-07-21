@@ -1,0 +1,31 @@
+---
+- name: Inventario servidores
+  hosts: linux
+  gather_facts: true
+
+  tasks:
+
+    - name: Obtener paquetes pendientes
+      shell: |
+        if command -v dnf >/dev/null 2>&1; then
+          dnf check-update -q 2>/dev/null | awk 'NF>=3' | wc -l
+        else
+          yum check-update 2>/dev/null | awk 'NF>=3' | wc -l
+        fi
+      register: pending_updates
+      changed_when: false
+      failed_when: false
+
+    - name: Crear variable consolidada
+      set_fact:
+        server_info:
+          hostname: "{{ inventory_hostname }}"
+          uptime_days: "{{ (ansible_uptime_seconds | int / 86400) | int }}"
+          os: "{{ ansible_distribution }}"
+          version: "{{ ansible_distribution_version }}"
+          kernel: "{{ ansible_kernel }}"
+          updates: "{{ pending_updates.stdout }}"
+
+    - name: Mostrar informacion consolidada
+      debug:
+        var: server_info
