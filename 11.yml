@@ -1,0 +1,71 @@
+- name: Inventario servidores Linux sin gather_facts
+  hosts: all
+  gather_facts: false
+
+  tasks:
+
+    - name: Obtener información básica del servidor
+      command: hostname
+      register: hostname_cmd
+      changed_when: false
+
+    - name: Obtener días de uptime
+      command: awk '{print int($1/86400)}' /proc/uptime
+      register: uptime_cmd
+      changed_when: false
+
+    - name: Obtener versión del kernel
+      command: uname -r
+      register: kernel_cmd
+      changed_when: false
+
+    - name: Obtener nombre del sistema operativo
+      shell: source /etc/os-release && echo $PRETTY_NAME
+      register: os_cmd
+      changed_when: false
+
+    - name: Contar actualizaciones pendientes
+      shell: |
+        if command -v dnf >/dev/null 2>&1; then
+          dnf check-update -q 2>/dev/null | awk 'NF>=3' | wc -l
+        else
+          yum check-update 2>/dev/null | awk 'NF>=3' | wc -l
+        fi
+      register: updates_cmd
+      changed_when: false
+      failed_when: false
+      ignore_errors: true
+
+    - name: Definir variables por host
+      set_fact:
+        hostname: "{{ hostname_cmd.stdout | default(inventory_hostname) }}"
+        uptime_days: "{{ uptime_cmd.stdout | default('') }}"
+        os: "{{ os_cmd.stdout | default('No Alcanzado') }}"
+        kernel: "{{ kernel_cmd.stdout | default('') }}"
+        updates: "{{ updates_cmd.stdout | default('') }}"
+
+    - name: Construir reporte CSV consolidado
+      run_once: true
+      delegate_to: localhost
+      set_fact:
+        reporte_csv: |
+          Hostname,Uptime_dias,SO,Kernel,Pendientes
+          {% for h in groups['all'] %}
+          {% if (hostvars[h].os | default('No Alcanzado')) == 'No Alcanzado' %}
+          {{ h }},No Alcanzado
+          {% else %}
+          {{ hostvars[h].hostname }},{{ hostvars[h].uptime_days }},{{ hostvars[h].os }},{{ hostvars[h].kernel }},{{ hostvars[h].updates }}
+          {% endif %}
+          {% endfor %}
+
+    - name: Enviar reporte CSV por correo
+      run_once: true
+      delegate_to: localhost
+      mail:
+        host: smtp.gmail.com
+        port: 587
+        username: pacheco00@gmail.com
+        password: qsnj nzxr auom flmz
+        to: pacheco00@gmail.com
+        subject: "Reporte consolidado de inventario de servidores (CSV)"
+        body: "{{ reporte_csv }}"
